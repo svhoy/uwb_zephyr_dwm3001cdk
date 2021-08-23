@@ -1,0 +1,13 @@
+menu "Device Drivers"
+
+rsource "sensor/Kconfig"
+
+rsource "battery/Kconfig"
+
+rsource "dw1000/Kconfig"
+
+rsource "ble/Kconfig"
+
+rsource "dwm_led/Kconfig"
+
+endmenu

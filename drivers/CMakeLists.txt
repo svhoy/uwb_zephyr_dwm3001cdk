@@ -1,0 +1,5 @@
+add_subdirectory_ifdef(CONFIG_SENSOR sensor)
+add_subdirectory_ifdef(CONFIG_BATTERY battery)
+add_subdirectory_ifdef(CONFIG_DW1000 dw1000)
+add_subdirectory_ifdef(CONFIG_BLE ble)
+add_subdirectory_ifdef(CONFIG_DW_LED dwm_led)

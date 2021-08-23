@@ -1,0 +1,9 @@
+config BLE
+	bool "DW_BLE"
+	help
+	  Enable BLE Funcionality 
+	  
+config CTS
+	bool "DW_CTS"
+	help
+	  Enable CTS Funcionality 

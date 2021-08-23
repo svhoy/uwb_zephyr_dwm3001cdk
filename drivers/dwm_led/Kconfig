@@ -1,0 +1,4 @@
+config DW_LED
+	bool "DW LED"
+	help
+	  Enable Simple way to toggle and set LEDs  

@@ -1,0 +1,41 @@
+manifest:
+  version: 0.1
+  remotes:
+    - name: dwm
+      url-base: https://github.com/svhoy/uwb_zephyr_project
+    - name: zephyrproject
+      url-base: https://github.com/zephyrproject-rtos
+
+  defaults:
+    remote: uwb
+
+  projects:
+    - name: zephyr
+      repo-path: zephyr
+      remote: zephyrproject
+      revision: 41e885947e4f48aae0866df9e5fee657afb7c1cc
+      import:
+        name-whitelist:
+          - cmsis
+          - edtt
+          - fatfs
+          - hal_nordic
+          - libmetal
+          - littlefs
+          - lvgl
+          - mbedtls
+          - mcumgr
+          - mipi-sys-t
+          - net-tools
+          - nrf_hw_models
+          - openthread
+          - segger
+          - tinycrypt
+    - name: hsm
+      repo-path: sdk-hsm-sensortag
+      remote: hsm
+      revision: e47c58d5e41b144fe4b214c8637e8b1276207f89
+      path: modules/lib/simplemesh
+
+  self:
+    path: dwm

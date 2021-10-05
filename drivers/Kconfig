@@ -6,8 +6,8 @@ rsource "battery/Kconfig"
 
 rsource "dw1000/Kconfig"
 
-rsource "ble/Kconfig"
+rsource "sit_ble/Kconfig"
 
-rsource "dwm_led/Kconfig"
+rsource "sit_led/Kconfig"
 
 endmenu

@@ -1,5 +1,5 @@
 
-menu "Home Smart Mesh"
+menu "Sport Indoor Tracking"
 
 rsource "samples/Kconfig"
 rsource "drivers/Kconfig"

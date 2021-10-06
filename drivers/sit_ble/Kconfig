@@ -1,9 +1,9 @@
-config BLE
-	bool "DW_BLE"
+config TEST_SVEN
+	bool 
 	help
 	  Enable BLE Funcionality 
 	  
-config CTS
-	bool "DW_CTS"
+config SIT_CTS
+	bool 
 	help
 	  Enable CTS Funcionality 

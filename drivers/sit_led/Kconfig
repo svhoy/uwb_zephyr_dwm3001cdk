@@ -1,4 +1,4 @@
-config DW_LED
-	bool "DW LED"
+config SIT_LED
+	bool 
 	help
 	  Enable Simple way to toggle and set LEDs  

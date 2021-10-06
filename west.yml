@@ -1,13 +1,13 @@
 manifest:
   version: 0.1
   remotes:
-    - name: dwm
+    - name: sit
       url-base: https://github.com/svhoy/uwb_zephyr_project
     - name: zephyrproject
       url-base: https://github.com/zephyrproject-rtos
 
   defaults:
-    remote: uwb
+    remote: sit
 
   projects:
     - name: zephyr
@@ -38,4 +38,4 @@ manifest:
       path: modules/lib/simplemesh
 
   self:
-    path: dwm
+    path: sit

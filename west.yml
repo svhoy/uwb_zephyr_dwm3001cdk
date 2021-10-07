@@ -1,5 +1,5 @@
 manifest:
-  version: 0.10
+  version: 0.9
   remotes:
     - name: sit
       url-base: https://github.com/svhoy/uwb_zephyr_project

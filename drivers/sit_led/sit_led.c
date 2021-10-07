@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <drivers/gpio.h>
 
-#include "drivers/dwm_led/dwm_led.h"
+#include "drivers/sit_led/sit_led.h"
 
 int led0_state = 0;
 int led1_state = 0;

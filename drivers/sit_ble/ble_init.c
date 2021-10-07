@@ -18,8 +18,8 @@
 #include <bluetooth/gatt.h>
 #include <bluetooth/services/bas.h>
 
-#include "drivers/ble/ble_init.h"
-#include "drivers/ble/cts.h"
+#include "drivers/sit_ble/ble_init.h"
+#include "drivers/sit_ble/cts.h"
 
 bool connection_status = false;
 

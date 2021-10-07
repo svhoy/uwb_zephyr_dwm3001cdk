@@ -10,7 +10,7 @@
 #include <sys/byteorder.h>
 #include <zephyr.h>
 
-#include "drivers/sit_led/dwm_led.h"
+#include "drivers/sit_led/sit_led.h"
 #include "drivers/sit_ble/ble_device.h"
 
 #define APP_NAME "SIMPLE BLE EXAMPLE\n"

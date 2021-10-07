@@ -1,4 +1,4 @@
 config SIT_LED
-	bool 
+	bool "SIT LED Interface"
 	help
 	  Enable Simple way to toggle and set LEDs  

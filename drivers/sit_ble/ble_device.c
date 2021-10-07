@@ -11,8 +11,8 @@
 
 #include <bluetooth/bluetooth.h>
 
-#include "drivers/ble/ble_device.h"
-#include "drivers/ble/ble_init.h"
+#include "drivers/sit_ble/ble_device.h"
+#include "drivers/sit_ble/ble_init.h"
 
 #define LOG_LEVEL 3
 #include <logging/log.h>

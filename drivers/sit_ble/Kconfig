@@ -1,9 +1,9 @@
-config TEST_SVEN
-	bool 
+config SIT_BLE
+	bool "SIT BLE Interface"
 	help
 	  Enable BLE Funcionality 
 	  
 config SIT_CTS
-	bool 
+	bool "SIT CTS Interface"
 	help
 	  Enable CTS Funcionality 

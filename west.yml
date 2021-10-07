@@ -31,11 +31,5 @@ manifest:
           - openthread
           - segger
           - tinycrypt
-    - name: hsm
-      repo-path: sdk-hsm-sensortag
-      remote: hsm
-      revision: e47c58d5e41b144fe4b214c8637e8b1276207f89
-      path: modules/lib/simplemesh
-
   self:
     path: sit

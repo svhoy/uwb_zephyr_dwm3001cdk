@@ -2,6 +2,7 @@
 *	main.c - 
 *	Application main entry point 
 */
+#include <zephyr.h>
 #include <zephyr/types.h>
 #include <stddef.h>
 #include <string.h>
@@ -9,7 +10,6 @@
 #include <errno.h>
 #include <sys/printk.h>
 #include <sys/byteorder.h>
-#include <zephyr.h>
 
 #include "drivers/sit_led/sit_led.h"
 #include "drivers/sit.h"
@@ -18,7 +18,7 @@
 
 #define LOG_LEVEL 3
 #include <logging/log.h>
-LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(main, LOG_LEVEL_WRN);
 
 /* Inter-ranging delay period, in milliseconds. */
 #define RNG_DELAY_MS 500
@@ -107,7 +107,7 @@ void main(void) {
                        (1 - clockOffsetRatio)) / 2.0) * DWT_TIME_UNITS;
             
             float distance = tof * SPEED_OF_LIGHT;
-            LOG_INF("initiator> Distance: %3.2lf", distance);
+            printk("initiator -> responder Distance: %3.2lf", distance);
 		} else {
 			LOG_WRN("Something is wrong");
             dwt_rxreset();

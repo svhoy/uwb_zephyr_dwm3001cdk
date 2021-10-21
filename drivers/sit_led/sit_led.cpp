@@ -3,7 +3,12 @@
 #include <stdio.h>
 #include <drivers/gpio.h>
 
+#include <logging/log.h>
+#include <sys/printk.h>
+
 #include "drivers/sit_led/sit_led.h"
+
+LOG_MODULE_REGISTER(SIT_LED, LOG_LEVEL_WRN);
 
 int led0_state = 0;
 int led1_state = 0;
@@ -12,7 +17,7 @@ int led3_state = 0;
 
 void dwm_led_init(void) {
     const struct device *dev = device_get_binding(LED0);
-
+    
 	gpio_pin_configure(dev, LED0_PIN, GPIO_OUTPUT_ACTIVE);
 	gpio_pin_configure(dev, LED1_PIN, GPIO_OUTPUT_ACTIVE);
 	gpio_pin_configure(dev, LED2_PIN, GPIO_OUTPUT_ACTIVE);
@@ -27,6 +32,7 @@ void dwm_led_init(void) {
 	gpio_pin_set(dev, LED2_PIN, 1);
 	gpio_pin_set(dev, LED3_PIN, 1);
 	k_sleep(K_MSEC(1000));
+    
 }
 
 int toggle_led_state (int state) {

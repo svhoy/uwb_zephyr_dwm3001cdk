@@ -2,7 +2,7 @@
 
 zephyr_library()
 
-zephyr_library_sources_ifdef(CONFIG_SIT_LED sit_led.c)
+zephyr_library_sources_ifdef(CONFIG_SIT_LED sit_led.cpp)
 
 
 

@@ -23,9 +23,6 @@
 #define LED3_PIN	DT_GPIO_PIN(LED3_NODE, gpios)
 
 
-/*---------------------------------------------------------------------------*/
-/*                                                                           */
-/*---------------------------------------------------------------------------*/
 void dwm_led_init(void);
 void dwm_toggle_led(int led_id);
 void dwm_set_led(int led_id, int state);

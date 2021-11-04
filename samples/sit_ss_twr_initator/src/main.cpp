@@ -23,6 +23,10 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_WRN);
 /* Inter-ranging delay period, in milliseconds. */
 #define RNG_DELAY_MS 500
 
+/* Default antenna delay  => 16436*/
+#define TX_ANT_DLY 16500
+#define RX_ANT_DLY 16350
+
 /* Default communication configuration. */
 static dwt_config_t config = {
     5,               /* Channel number. */
@@ -59,7 +63,7 @@ void main(void) {
 	printk(APP_NAME);
 	printk("==================\n");
 
-	bool init_ok = sit_init(config);
+	bool init_ok = sit_init(config, TX_ANT_DLY, RX_ANT_DLY);
 	// INIT LED and let them Blink one Time to see Intitalion Finshed
     dwm_led_init();
 
@@ -107,7 +111,7 @@ void main(void) {
                        (1 - clockOffsetRatio)) / 2.0) * DWT_TIME_UNITS;
             
             float distance = tof * SPEED_OF_LIGHT;
-            printk("initiator -> responder Distance: %3.2lf", distance);
+            printk("initiator -> responder Distance: %3.2lf \n", distance);
 		} else {
 			LOG_WRN("Something is wrong");
             dwt_rxreset();

@@ -5,10 +5,6 @@
 #include <stdbool.h>
 #include "drivers/dw1000/deca_device_api.h"
 
-/* Default antenna delay */
-#define TX_ANT_DLY 16436
-#define RX_ANT_DLY 16436
-
 #define SPEED_OF_LIGHT 299702547
 
 typedef enum {
@@ -46,7 +42,7 @@ typedef struct
     uint16_t crc;
 }msg_ds_twr_final_t;
 
-bool sit_init(dwt_config_t config);
+bool sit_init(dwt_config_t config, int Tx_Ant_Dly, int Rx_Ant_Dly);
 void sit_setRxAfterTxDelay(uint32_t delay_us,uint16_t timeout);
 
 void sit_startPoll(uint8_t* msg_data, uint16_t msg_size);

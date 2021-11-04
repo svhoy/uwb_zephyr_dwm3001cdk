@@ -7,8 +7,8 @@
 #include "ble_device.h"
 #include "ble_uuids.h" 
 
-
 bool is_connected(void);
+void ble_sit_notify(float pos);
 void bas_notify(void);
 
 int  ble_start_advertising(void);

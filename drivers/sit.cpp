@@ -14,7 +14,7 @@ LOG_MODULE_REGISTER(SIT_Module, LOG_LEVEL_WRN);
 
 static uint32_t status_reg = 0;
 
-bool sit_init(dwt_config_t config) {
+bool sit_init(dwt_config_t config, int Tx_Ant_Dly, int Rx_Ant_Dly) {
     /* Configure DW1000 SPI */
     openspi();
 
@@ -26,8 +26,8 @@ bool sit_init(dwt_config_t config) {
     }
 	port_set_dw1000_fastrate();
     dwt_configure(&config);
-    dwt_setrxantennadelay(RX_ANT_DLY);
-    dwt_settxantennadelay(TX_ANT_DLY);
+    dwt_setrxantennadelay(Rx_Ant_Dly);
+    dwt_settxantennadelay(Tx_Ant_Dly);
 
 	return true;
 }

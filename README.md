@@ -6,7 +6,7 @@ A Zephyr based Project for uwb module DWM3001cdk based on nRF52832 and DW3110 Tr
 west init -m https://github.com/svhoy/uwb_zephyr_dwm3001cdk --mr main
 ```
 
-#TODO 
+# TODO 
 - Readme.md 
 - Update old Samples to New Zephyr Version 
 - Update the old DW1000 Drivers

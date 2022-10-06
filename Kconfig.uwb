@@ -4,6 +4,4 @@ menu "Sport Indoor Tracking"
 rsource "samples/Kconfig"
 rsource "drivers/Kconfig"
 
-
-
 endmenu

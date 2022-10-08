@@ -1,4 +1,4 @@
-zephyr_library()
+ zephyr_library()
 
 zephyr_library_sources_ifdef(CONFIG_SIT sit.cpp)
 
@@ -6,5 +6,6 @@ zephyr_library_sources_ifdef(CONFIG_SIT sit.cpp)
 add_subdirectory_ifdef(CONFIG_SENSOR sensor)
 add_subdirectory_ifdef(CONFIG_BATTERY battery)
 add_subdirectory_ifdef(CONFIG_DW1000 dw1000)
+add_subdirectory_ifdef(CONFIG_DW3110 dw3110)
 add_subdirectory_ifdef(CONFIG_SIT_BLE sit_ble)
 add_subdirectory_ifdef(CONFIG_SIT_LED sit_led)

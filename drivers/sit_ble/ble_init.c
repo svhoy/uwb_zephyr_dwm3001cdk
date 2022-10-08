@@ -77,7 +77,7 @@ static void sit_pos_ccc_cfg_changed(const struct bt_gatt_attr *attr,
 	LOG_INF("SIT Notifications %s", notif_enabled ? "enabled" : "disabled");
 }
 
-/* Vendor Primary Service Declaration */
+/* SIT Primary Service Declaration */
 BT_GATT_SERVICE_DEFINE(sit_service,
 	BT_GATT_PRIMARY_SERVICE(&sit_uuid),
 	BT_GATT_CHARACTERISTIC(&sit_notify_uuid.uuid,

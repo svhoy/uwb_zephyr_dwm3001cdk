@@ -1,27 +1,57 @@
-/* 
-*	main.c - 
-*	Application main entry point 
-*/
+/**
+ * Copyright (c) 2019 - Frederic Mes, RTLOC
+ * Copyright (c) 2015 - Decawave Ltd, Dublin, Ireland.
+ * Copyright (c) 2021 - Home Smart Mesh
+ * Copyright (c) 2022 - Sven Hoyer
+ * 
+ * This file is part of Zephyr-DWM1001.
+ *
+ *   Zephyr-DWM1001 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Zephyr-DWM1001 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Zephyr-DWM1001.  If not, see <https://www.gnu.org/licenses/>.
+ * 
+ */
 #include <zephyr/types.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h>
 #include <errno.h>
-#include <sys/printk.h>
-#include <sys/byteorder.h>
-#include <zephyr.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/sys/byteorder.h>
+#include <zephyr/kernel.h>
 
-#include "drivers/sit_led/sit_led.h"
+
 #include "drivers/sit.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "drivers/sit_led/sit_led.h"
+#ifdef __cplusplus
+}
+#endif
 
 #define APP_NAME "SIMPLE TWR Responder EXAMPLE\n"
 
 #define LOG_LEVEL 3
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main, LOG_LEVEL_ERR);
 
 /* Inter-ranging delay period, in milliseconds. */
 #define RNG_DELAY_MS 500
+
+/* Default antenna delay  => 16436*/
+#define TX_ANT_DLY 16436
+#define RX_ANT_DLY 16436
 
 /* Default communication configuration. */
 static dwt_config_t config = {
@@ -53,11 +83,11 @@ static dwt_config_t config = {
 #define STACKSIZE 2048
 
 
-void main(void) {
+int main(void) {
 	printk(APP_NAME);
 	printk("==================\n");
 
-	bool init_ok = sit_init(config);
+	bool init_ok = sit_init(config, TX_ANT_DLY, RX_ANT_DLY);
 	// INIT LED and let them Blink one Time to see Intitalion Finshed
     dwm_led_init();
     
@@ -102,4 +132,6 @@ void main(void) {
 		frame_sequenz++;
         k_sleep(K_MSEC(RNG_DELAY_MS));
 	}
+
+    return 0;
 }

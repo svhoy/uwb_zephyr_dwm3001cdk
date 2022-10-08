@@ -1,7 +1,25 @@
-/* 
-*	main.c - 
-*	Application main entry point 
-*/
+/**
+ * Copyright (c) 2019 - Frederic Mes, RTLOC
+ * Copyright (c) 2015 - Decawave Ltd, Dublin, Ireland.
+ * Copyright (c) 2021 - Home Smart Mesh
+ * Copyright (c) 2022 - Sven Hoyer
+ * 
+ * This file is part of Zephyr-DWM1001.
+ *
+ *   Zephyr-DWM1001 is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Zephyr-DWM1001 is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Zephyr-DWM1001.  If not, see <https://www.gnu.org/licenses/>.
+ * 
+ */
 #include <zephyr.h>
 #include <zephyr/types.h>
 #include <stddef.h>
@@ -29,7 +47,6 @@ extern "C" {
 
 #define APP_NAME "SIMPLE TWR Initiator BLE EXAMPLE\n"
 
-#define LOG_LEVEL 3
 #include <logging/log.h>
 LOG_MODULE_REGISTER(main, LOG_LEVEL_WRN);
 
@@ -37,8 +54,8 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_WRN);
 #define RNG_DELAY_MS 500
 
 /* Default antenna delay  => 16436*/
-#define TX_ANT_DLY 16500
-#define RX_ANT_DLY 16350
+#define TX_ANT_DLY 16436
+#define RX_ANT_DLY 16436
 
 /* Default communication configuration. */
 static dwt_config_t config = {
@@ -105,7 +122,7 @@ void main(void) {
             regStatus = sit_getRegStatus();
             LOG_INF("initiator> sequence(%u) starting ; statusreg = 0x%08x",frame_sequenz,regStatus);
             sit_setRxAfterTxDelay(POLL_TX_TO_RESP_RX_DLY_UUS, RESP_RX_TIMEOUT_UUS);
-            msg_header_t twr_poll = {twr_1_poll, frame_sequenz, this_initiator_node_id , responder_node_id,0};
+            msg_header_t twr_poll = {twr_1_poll, frame_sequenz, this_initiator_node_id, responder_node_id, 0};
             sit_startPoll((uint8_t*) &twr_poll, (uint16_t)sizeof(twr_poll));
             regStatus = sit_getRegStatus();
             LOG_INF("statusreg = 0x%08x",regStatus);

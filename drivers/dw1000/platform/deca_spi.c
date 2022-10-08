@@ -18,14 +18,14 @@
 #include <drivers/dw1000/port.h>
 
 #include <errno.h>
-#include <zephyr.h>
-#include <sys/printk.h>
-#include <device.h>
-#include <drivers/spi.h>
-#include <drivers/gpio.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/spi.h>
+#include <zephyr/drivers/gpio.h>
 
 #define LOG_LEVEL 3
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(deca_spi);
 
 const struct device * spi;
@@ -61,8 +61,8 @@ static struct spi_cs_control cs_ctrl;
 int openspi(void)
 {
     /* Propagate CS config into all spi_cfgs[] elements */
-    cs_ctrl.gpio_dev = device_get_binding(DT_LABEL(DT_PHANDLE_BY_IDX(DT_NODELABEL(spi2), cs_gpios, 0)));
-    if (!cs_ctrl.gpio_dev) {
+    cs_ctrl.gpio = device_get_binding(DT_LABEL(DT_PHANDLE_BY_IDX(DT_NODELABEL(spi2), cs_gpios, 0)));
+    if (!cs_ctrl.gpio) {
         printk("%s: GPIO binding failed.\n", __func__);
         return -1;
     }

@@ -2,8 +2,8 @@
 
 #include <string.h>
 
-#include <logging/log.h>
-#include <sys/printk.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/sys/printk.h>
 
 #include "drivers/dw1000/deca_device_api.h"
 #include "drivers/dw1000/deca_regs.h"
@@ -54,7 +54,7 @@ bool sit_sendAt(uint8_t* msg_data, uint16_t size, uint64_t tx_time){
 		while (!(dwt_read32bitreg(SYS_STATUS_ID) & SYS_STATUS_TXFRS))
 		{
 		};
-		dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS);
+		dwt_write32bitreg(SYS_STATUS_ID, SYS_STATUS_TXFRS); // write to clear send status bit 
 		LOG_WRN("Send Success");
 		return true;
 	} else {
@@ -142,7 +142,7 @@ void recover_tx_errors() {
 	}
 }
 
-uint32_t sit_getRegStatus(){
+uint32_t sit_getRegStatus(){ // TODO rename to get Divice Status 
     return dwt_read32bitreg(SYS_STATUS_ID);
 }
 

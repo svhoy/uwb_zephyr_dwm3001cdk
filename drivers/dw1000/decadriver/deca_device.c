@@ -12,7 +12,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 
 #include <drivers/dw1000/deca_types.h>
 #include <drivers/dw1000/deca_param_types.h>
@@ -172,7 +172,7 @@ int dwt_setlocaldataptr(unsigned int index)
 #define XTRIM_ADDRESS  (0x1E)
 
 #define LOG_LEVEL 3
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(deca_device);
 
 

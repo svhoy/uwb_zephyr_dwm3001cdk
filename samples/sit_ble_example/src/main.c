@@ -1,7 +1,10 @@
-/* 
-*	main.c - 
-*	Application main entry point 
-*/
+/**
+ * Copyright (c) 2015 - Decawave Ltd, Dublin, Ireland.
+ * Copyright (c) 2022 - Sven Hoyer
+ * 
+ * This is an Simple Bluetooth Low Energy Example for the 
+ * DWM1001-DEV Board Zephyr
+ */
 #include <zephyr/types.h>
 #include <stddef.h>
 #include <string.h>

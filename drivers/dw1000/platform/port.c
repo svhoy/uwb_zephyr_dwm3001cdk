@@ -19,12 +19,12 @@
 
 // zephyr includes
 #include <errno.h>
-#include <zephyr.h>
-#include <sys/printk.h>
-#include <device.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/device.h>
 #include <soc.h>
 #include <hal/nrf_gpiote.h>
-#include <drivers/gpio.h>
+#include <zephyr/drivers/gpio.h>
 
 static const struct device * gpio_dev;
 static struct gpio_callback gpio_cb;

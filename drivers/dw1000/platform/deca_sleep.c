@@ -11,7 +11,7 @@
  * @author DecaWave
  */
 
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 
 #include <drivers/dw1000/deca_device_api.h>
 #include <drivers/dw1000/port.h>

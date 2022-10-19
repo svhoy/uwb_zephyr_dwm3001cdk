@@ -10,7 +10,7 @@
  *
  */
 
-#include <config_options.h>
+#include "config_options.h"
 
 /* String used to display measured distance on LCD screen (16 characters maximum). */
 char dist_str[16] = { 0 };

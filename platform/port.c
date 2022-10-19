@@ -1,10 +1,10 @@
 
 #include <zephyr.h>
 
-#include <deca_device_api.h>
-#include <dw3000_hw.h>
-#include <dw3000_spi.h>
-#include <port.h>
+#include "deca_device_api.h"
+#include "dw3000_hw.h"
+#include "dw3000_spi.h"
+#include "port.h"
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(port, LOG_LEVEL_INF);

@@ -2,8 +2,8 @@
 
 #include "deca_interface.h"
 
-#include <dw3000_hw.h>
-#include <dw3000_spi.h>
+#include "dw3000_hw.h"
+#include "dw3000_spi.h"
 
 /* This file implements the functions required by decadriver */
 

@@ -3,9 +3,9 @@
 #include <logging/log.h>
 #include <zephyr.h>
 
-#include <deca_device_api.h>
-#include <dw3000_hw.h>
-#include <dw3000_spi.h>
+#include "deca_device_api.h"
+#include "dw3000_hw.h"
+#include "dw3000_spi.h"
 
 LOG_MODULE_REGISTER(dw3000, CONFIG_DW3000_LOG_LEVEL);
 

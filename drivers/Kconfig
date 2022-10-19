@@ -4,17 +4,4 @@ rsource "sensor/Kconfig"
 
 rsource "battery/Kconfig"
 
-rsource "dw1000/Kconfig"
-
-rsource "dw3110/Kconfig"
-
-rsource "sit_ble/Kconfig"
-
-rsource "sit_led/Kconfig"
-
 endmenu
-
-menuconfig SIT
-	bool "Sport Indoor Tracking"
-	help
-		Include SIT LIB

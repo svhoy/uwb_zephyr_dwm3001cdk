@@ -12,6 +12,9 @@ CONFIG_USE_SEGGER_RTT=y
 
 # enable GPIO
 CONFIG_GPIO=y
+CONFIG_SPI=y
+
+CONFIG_DW3000=y
 
 # enable uart driver
 CONFIG_SERIAL=y

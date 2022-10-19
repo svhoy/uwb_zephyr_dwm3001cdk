@@ -1,7 +1,7 @@
-
 menu "Sport Indoor Tracking"
 
 rsource "samples/Kconfig"
-rsource "drivers/Kconfig"
+rsource "dw3000-decadriver/Kconfig"
+rsource "subsys/Kconfig"
 
 endmenu

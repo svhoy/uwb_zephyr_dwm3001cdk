@@ -1,4 +1,0 @@
-menuconfig DW3110
-	bool "DW3110 Tranceiver"
-	help
-		Include DW3110 Tranceiver drivers in config

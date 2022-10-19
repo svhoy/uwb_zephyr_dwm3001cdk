@@ -1,0 +1,6 @@
+config SIT_LED
+	bool "SIT LED Interface"
+	imply GPIO
+	help
+	  Enable Simple way to toggle and set LEDs  
+

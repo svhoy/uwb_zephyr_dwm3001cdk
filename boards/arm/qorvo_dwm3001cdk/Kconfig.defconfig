@@ -14,6 +14,9 @@ config BT_CTLR
 config I2C
 	default SENSOR
 
+config GPIO
+	default y
+
 config SPI
 	default y
 	depends on IEEE802154

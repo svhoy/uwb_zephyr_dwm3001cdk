@@ -1,0 +1,14 @@
+menu "Device Drivers"
+
+rsource "sit_ble/Kconfig"
+
+rsource "sit_led/Kconfig"
+
+rsource "sit/Kconfig"
+
+endmenu
+
+menuconfig SIT
+	bool "Sport Indoor Tracking"
+	help
+		Include SIT LIB

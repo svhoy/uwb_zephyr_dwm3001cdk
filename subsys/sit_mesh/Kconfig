@@ -1,0 +1,9 @@
+config SIT_MESH
+	bool "SIT Interface"
+	imply SIT_LED
+	help
+	  Enable SIT BLE Mesh 
+
+if CONFIG_SIT_MESH
+	
+endif

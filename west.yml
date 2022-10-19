@@ -5,6 +5,8 @@ manifest:
       url-base: https://github.com/svhoy/uwb_zephyr_project
     - name: zephyrproject
       url-base: https://github.com/zephyrproject-rtos
+    - name: dw3000
+      url-base: https://github.com/br101/
 
   defaults:
     remote: sit
@@ -13,7 +15,7 @@ manifest:
     - name: zephyr
       repo-path: zephyr
       remote: zephyrproject
-      revision: main
+      revision: v3.0-branch
       import:
         name-whitelist:
           - cmsis
@@ -31,5 +33,12 @@ manifest:
           - openthread
           - segger
           - tinycrypt
+    - name: dw3000-decadriver
+      repo-path: zephyr-dw3000-decadriver
+      remote: dw3000
+      revision: master
+
+
+
   self:
     path: sit

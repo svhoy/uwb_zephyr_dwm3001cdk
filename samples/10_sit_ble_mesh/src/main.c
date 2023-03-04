@@ -5,42 +5,38 @@
  * This is an Simple Bluetooth Low Energy Example for the 
  * DWM1001-DEV Board Zephyr
  */
-#include <zephyr/types.h>
+
 #include <stddef.h>
 #include <string.h>
 #include <errno.h>
+
+#include <zephyr.h>
+#include <zephyr/types.h>
 #include <sys/printk.h>
 #include <sys/byteorder.h>
-#include <zephyr.h>
 
-#include "sit_led.h"
-#include "ble_device.h"
+#include <sit_mesh.h>
+#include <sit_led.h>
 
-#define APP_NAME "SIMPLE BLE EXAMPLE\n"
+#define APP_NAME "SIMPLE MESH EXAMPLE\n"
+
+/* size of stack area used by each thread */
+#define STACKSIZE 2048
 
 void main(void) {
 	printk(APP_NAME);
 	printk("==================\n");
-
+	k_sleep(K_SECONDS(2));
+	sit_mesh_init();
 	sit_led_init();
-	ble_device_init();
 
-	
-	/* Implement notification. At the moment there is no suitable way
-	 * of starting delayed work so we do it here
-	 */
-	while (1) {
-		k_sleep(K_SECONDS(1));
-
-		if (is_connected()) {
-			/* Battery level simulation */
-			bas_notify();
-
-			sit_set_led(1, 0);
+	while(1) {
+		if (sit_mesh_is_provisioned()) {
+			sit_toggle_led(3);
 		} else {
-			/* Toggle LED while disconnect */
-			sit_toggle_led(1);
+			sit_toggle_led(0);
 		}
-		
+		k_sleep(K_SECONDS(1));
 	}
+	 
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <kernel.h>
+#include <sys/printk.h>
 #include <logging/log.h>
 
 #include "sit_led.h"

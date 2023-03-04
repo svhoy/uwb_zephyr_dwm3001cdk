@@ -1,0 +1,11 @@
+
+
+config SIT_MESH
+	bool "SIT Mesh Interface"
+	imply SIT_LED
+	imply BT
+	imply BT_BROADCASTER
+	imply BT_OBSERVER
+	imply BT_MESH
+	help
+	  Enable BLE Mesh Funcionality 

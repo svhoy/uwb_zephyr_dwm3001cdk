@@ -6,6 +6,8 @@ rsource "sit_led/Kconfig"
 
 rsource "sit/Kconfig"
 
+rsource "sit_mesh/Kconfig"
+
 endmenu
 
 menuconfig SIT

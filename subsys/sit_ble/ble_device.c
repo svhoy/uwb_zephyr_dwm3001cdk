@@ -30,6 +30,15 @@ int ble_set_device_name(const char * name)
     return 0;
 }
 
+void ble_device_address(void){
+    char addr_s[BT_ADDR_LE_STR_LEN];
+	bt_addr_le_t addr = {0};
+    size_t count = 1;
+    bt_id_get(&addr, &count);
+    bt_addr_le_to_str(&addr, addr_s, sizeof(addr_s));
+    printk("Device address: %s \n", addr_s);
+}
+
 void ble_device_name(void) {
     printk("Device Name: %s\n", bt_get_name());
 }

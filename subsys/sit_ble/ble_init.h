@@ -14,6 +14,7 @@ extern "C"
 
 bool is_connected(void);
 void ble_sit_notify(float pos);
+int ble_get_command();
 void bas_notify(void);
 
 int  ble_start_advertising(void);

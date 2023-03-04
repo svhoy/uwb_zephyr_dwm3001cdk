@@ -27,7 +27,7 @@ LOG_MODULE_REGISTER(BLE_INIT, LOG_LEVEL_WRN);
 
 #define POS_MAX_LEN 20
 
-
+struct bt_conn *default_conn;
 bool connection_status = false;
 
 static uint8_t sit_position = 100U;
@@ -51,19 +51,54 @@ static ssize_t read_pos(struct bt_conn *conn,
 				 sizeof(pos));
 }
 
+uint8_t number = 0;
+
 static ssize_t write_pos(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 			 const void *buf, uint16_t len, uint16_t offset,
 			 uint8_t flags)
 {
-	uint8_t *value = attr->user_data;
+	const uint8_t *value = buf;
 
 	if (offset + len > POS_MAX_LEN) {
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
 	}
 
-	memcpy(value + offset, buf, len);
-	value[offset + len] = 0;
+	if (*value >= 0 && *value <= 10) {
+		number = *value;
+	} else {
+		return BT_GATT_ERR(BT_ATT_ERR_VALUE_NOT_ALLOWED);
+	}
+	return len;
+}
 
+static uint8_t sit_command = 0;
+
+static ssize_t read_comand(struct bt_conn *conn,
+			       const struct bt_gatt_attr *attr, void *buf,
+			       uint16_t len, uint16_t offset)
+{
+	const uint8_t *command = attr->user_data;
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, command,
+				 sizeof(command));
+}
+
+static ssize_t write_comand(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			 const void *buf, uint16_t len, uint16_t offset,
+			 uint8_t flags)
+{
+	const uint8_t *value = buf;
+
+	if (offset + len > POS_MAX_LEN) {
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	if (*value >= 0 && *value <= 10) {
+		sit_command = *value;
+	} else {
+		return BT_GATT_ERR(BT_ATT_ERR_VALUE_NOT_ALLOWED);
+	}
+	printk("test %d \n", sit_command);
 	return len;
 }
 
@@ -88,9 +123,8 @@ BT_GATT_SERVICE_DEFINE(sit_service,
 		    BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
 	BT_GATT_CHARACTERISTIC(&sit_command_uuid.uuid,
 			       BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE,
-			       BT_GATT_PERM_READ |
-			       BT_GATT_PERM_WRITE,
-			       read_pos, write_pos, &sit_position),
+			       BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,
+			       read_comand, write_comand, NULL),
 			
 );
 
@@ -108,9 +142,13 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	if (err) {
 		printk("Connection failed (err 0x%02x)\n", err);
 		connection_status = false;
+		
+		bt_conn_unref(default_conn);
+		default_conn = NULL;
 	} else {
 		printk("Connected\n");
 		connection_status = true;
+		default_conn = bt_conn_ref(conn);
 	}
 }
 
@@ -118,7 +156,11 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	printk("Disconnected (reason 0x%02x)\n", reason);
 	connection_status = false;
-}
+	if (default_conn){
+		bt_conn_unref(default_conn);
+		default_conn = NULL;
+	}
+} 
 
 bool is_connected(void) {
 	return connection_status;
@@ -137,6 +179,7 @@ static void bt_ready(void)
 
 	ble_set_device_name("DWM3001 Blue");
 	ble_device_name();
+	// ble_device_address();
 
 	if (IS_ENABLED(CONFIG_SETTINGS)) {
 		settings_load();
@@ -186,6 +229,11 @@ static struct bt_conn_auth_cb auth_cb_display = {
 void ble_sit_notify(float pos) {	
 	bt_gatt_notify(NULL, &sit_service.attrs[1], &pos, sizeof(pos));
 }
+
+int ble_get_command() {
+	return sit_command;
+}
+
 
 void bas_notify(void)
 {

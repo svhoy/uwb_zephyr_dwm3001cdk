@@ -2,9 +2,4 @@
 
 zephyr_library()
 
-zephyr_library_sources_ifdef(CONFIG_SIT sit.cpp)
-
-target_sources(app PRIVATE ../../platform/port.c ../../platform/config_options.c)
-
-
-zephyr_include_directories(../../platform)
+zephyr_library_sources_ifdef(CONFIG_SIT_MESH sit_mesh.c)

@@ -9,8 +9,8 @@ west init -m https://github.com/svhoy/uwb_zephyr_dwm3001cdk --mr main
 # TODO 
 - Readme.md 
 - Update old Samples to New Zephyr Version 
-- Update the old DW1000 Drivers
 - Test PIN Descriptions in Board Description
+- Update Project to newer Zepyhr Version
 
 # Old Projects Takover from DWM1001-DEV
 https://github.com/nRFMesh/sdk-uwb-zephyr

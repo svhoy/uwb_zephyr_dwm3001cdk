@@ -18,5 +18,6 @@ driver zephyr port from https://github.com/foldedtoad/dwm1001.git
 
 * `uwb\drivers\dw1000\decadriver`
 * `uwb\drivers\dw1000\platform`
+
 Also thank you for your help by porting from DWM1001-DEV to DWM3001CDK
 https://github.com/br101/zephyr-dw3000-decadriver

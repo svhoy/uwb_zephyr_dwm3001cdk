@@ -1,0 +1,6 @@
+config SIT_JSON
+	bool "SIT JSON Interface"
+	imply GPIO
+	help
+	  Enable JSON Parser for SIT System  
+

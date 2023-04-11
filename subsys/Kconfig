@@ -8,6 +8,8 @@ rsource "sit/Kconfig"
 
 rsource "sit_mesh/Kconfig"
 
+rsource "sit_json/Kconfig"
+
 endmenu
 
 menuconfig SIT

@@ -34,37 +34,6 @@ void main(void) {
 	printk("==================\n");
 
 	sit_led_init();
-	// Problem! in this version of zephyr there is no float in json possible
-	char json_msg[] = "{\"type\":\"distance_msg\",\"data\":{\"state\":\"start\",\"distance\":1,\"test_id\":44}}";
 	
-	int expected_return_code = (1 << ARRAY_SIZE(distance_msg_descr)) - 1;
-	struct json_distance_msg distance_msg;
-
-	int ret = json_distance_parser(
-				json_msg,
-				sizeof(json_msg),
-				&distance_msg
-	);
-
-	if (ret < 0) {
-		LOG_ERR("JSON Parse Error: %d", ret);
-	}
-	else if (ret != expected_return_code) {
-		LOG_ERR("Not all values decoded; Expected return code %d but got %d", expected_return_code, ret);
-	}
-	else {
-		LOG_INF("json_obj_parse return code: %d", ret);
-		LOG_INF("calculated return code: %d", expected_return_code);
-		if (strcmp(distance_msg.data.state, "start"))
-		{
-			LOG_INF("State: start");
-		}
-		else
-		{
-			LOG_INF("State: False");
-		}
-		LOG_INF("Distance: %d", distance_msg.data.distance);
-		LOG_INF("Test ID: %d", distance_msg.data.test_id);
-	}
 
 }

@@ -29,8 +29,8 @@ bool sit_init(dwt_config_t config, int TX_ANT_DLY, int RX_ANT_DLY) {
 
 	Sleep(10); // Time needed for DW3000 to start up (transition from INIT_RC to IDLE_RC, or could wait for SPIRDY event)
 	
-	/* Probe for the correct device driver. */
-	dwt_probe((struct dwt_probe_s *)&dw3000_probe_interf);
+	/* Probe set device speific functions (eg. write and read spi). */
+	int test = dwt_probe((struct dwt_probe_s *)&dw3000_probe_interf);
 	
 	/* Need to make sure DW IC is in IDLE_RC before proceeding */
 	while (!dwt_checkidlerc()){
@@ -44,7 +44,6 @@ bool sit_init(dwt_config_t config, int TX_ANT_DLY, int RX_ANT_DLY) {
 	/* Enabling LEDs here for debug so that for each TX the D1 LED will flash on DW3000 red eval-shield boards. */
 	dwt_setleds(DWT_LEDS_ENABLE | DWT_LEDS_INIT_BLINK);
 
-	/* Configure DW IC. See NOTE 13 below. */
 	/* if the dwt_configure returns DWT_ERROR either the PLL or RX calibration has failed the host should reset the device */
 	if (dwt_configure(&config)){
 		LOG_WRN("CONFIG FAILED     ");
@@ -53,7 +52,7 @@ bool sit_init(dwt_config_t config, int TX_ANT_DLY, int RX_ANT_DLY) {
 	/* Configure the TX spectrum parameters (power, PG delay and PG count) */
 	dwt_configuretxrf(&txconfig_options);
 	
-	/* Apply default antenna delay value. See NOTE 2 below. */
+	/* Apply default antenna delay value. */
 	dwt_setrxantennadelay(RX_ANT_DLY);
 	dwt_settxantennadelay(TX_ANT_DLY);
 

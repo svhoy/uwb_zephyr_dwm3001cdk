@@ -4,7 +4,7 @@
 
 description: Qorvo DW3000 (SPI)
 
-compatible: "decawave,dw3000"
+compatible: "qorvo,dw3000"
 
 include: spi-device.yaml
 

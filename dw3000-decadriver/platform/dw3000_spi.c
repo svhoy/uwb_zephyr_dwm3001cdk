@@ -4,10 +4,10 @@
  * Copyright 2021 (c) Callender-Consulting LLC.
  */
 
-#include <device.h>
-#include <drivers/spi.h>
-#include <logging/log.h>
-#include <zephyr.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/spi.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/kernel.h>
 
 #include "dw3000_spi.h"
 
@@ -17,8 +17,8 @@ LOG_MODULE_DECLARE(dw3000, CONFIG_DW3000_LOG_LEVEL);
 
 #define TX_WAIT_RESP_NRF52840_DELAY 30
 
-#define DW_INST DT_INST(0, decawave_dw3000)
-#define DW_SPI	DT_PARENT(DT_INST(0, decawave_dw3000))
+#define DW_INST DT_INST(0, qorvo_dw3000)
+#define DW_SPI	DT_PARENT(DT_INST(0, qorvo_dw3000))
 
 static const struct device* spi;
 static struct spi_cs_control* cs_ctrl = SPI_CS_CONTROL_PTR_DT(DW_INST, 0);
@@ -52,12 +52,12 @@ int dw3000_spi_init(void)
 
 	spi_cfg = &spi_cfgs[0];
 
-	spi = device_get_binding(DT_LABEL(DW_SPI));
+	spi = device_get_binding(DEVICE_DT_NAME(DT_NODELABEL(spi3)));
 	if (!spi) {
 		LOG_ERR("DW3000 SPI binding failed");
 		return -1;
 	} else {
-		LOG_INF("DW3000 on %s (max %dMHz)", DT_LABEL(DW_SPI),
+		LOG_INF("DW3000 on %s (max %dMHz)", DEVICE_DT_NAME(DT_NODELABEL(spi3)),
 				spi_cfgs[1].frequency / 1000000);
 	}
 

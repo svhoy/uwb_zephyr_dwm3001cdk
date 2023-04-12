@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#include <zephyr.h>
-#include <logging/log.h>
-#include <drivers/gpio.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/drivers/gpio.h>
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 

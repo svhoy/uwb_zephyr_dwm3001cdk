@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include <zephyr.h>
-#include <logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 
 #include "sit_led.h"
 

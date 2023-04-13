@@ -28,8 +28,8 @@
 #include <sit.h>
 #include <sit_led.h>
 
-#include <zephyr.h>
-#include <logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 /* Example application name */
@@ -77,7 +77,7 @@ static uint8_t frame_seq_nb = 0;
 
 uint32_t regStatus = 0;
 
-void main(void) {
+int main(void) {
 	printk(APP_NAME);
 	printk("==================\n");
 
@@ -136,4 +136,5 @@ void main(void) {
 		}
         k_sleep(K_MSEC(RNG_DELAY_MS));
 	}
+    return 0;
 }

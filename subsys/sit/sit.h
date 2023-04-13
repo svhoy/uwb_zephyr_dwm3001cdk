@@ -42,7 +42,20 @@ typedef struct
     uint16_t crc;
 }msg_ds_twr_final_t;
 
-bool sit_init(dwt_config_t config, int Tx_Ant_Dly, int Rx_Ant_Dly);
+/***************************************************************************
+* Initilization for DW3001 -> SPI Connection, DW3000, Antenna Delay  
+*
+* @param config dwt_config_t for Device configuration
+* @param TX_ANT_DLY TX Antenna Delay Configuration
+* @param RX_ANT_DLY RX Antenna Delay Configuration
+*
+* @return error code 
+* [
+*	-1 -> dwt_initialise failed,
+*	-2 -> dwt_configure failed
+* ]
+****************************************************************************/
+uint8_t sit_init(dwt_config_t *config, int TX_ANT_DLY, int RX_ANT_DLY);
 void sit_setRxAfterTxDelay(uint32_t delay_us,uint16_t timeout);
 
 void sit_startPoll(uint8_t* msg_data, uint16_t msg_size);

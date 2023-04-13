@@ -20,18 +20,24 @@ static uint32_t status_reg = 0;
  * temperature. These values can be calibrated prior to taking reference measurements. See NOTE 5 below. */
 extern dwt_txconfig_t txconfig_options;
 
-bool sit_init(dwt_config_t config, int TX_ANT_DLY, int RX_ANT_DLY) {
+
+uint8_t sit_init(dwt_config_t *config, int TX_ANT_DLY, int RX_ANT_DLY) {
+	
 	device_init();
+	/* Configure SPI rate, for initialize it should not faster than 7 MHz */
 	port_set_dw_ic_spi_slowrate();
 	
 	/* Reset and initialize DW chip. */
 	reset_DWIC(); /* Target specific drive of RSTn line into DW3000 low for a period. */
 
-	Sleep(10); // Time needed for DW3000 to start up (transition from INIT_RC to IDLE_RC, or could wait for SPIRDY event)
+	k_msleep(2); // Time needed for DW3000 to start up (transition from INIT_RC to IDLE_RC, or could wait for SPIRDY event)
 	
+	/* Configure SPI rate, after init up to 36 MHz */
+	port_set_dw_ic_spi_fastrate();
+
 	/* Probe set device speific functions (eg. write and read spi). */
 	int test = dwt_probe((struct dwt_probe_s *)&dw3000_probe_interf);
-	
+
 	/* Need to make sure DW IC is in IDLE_RC before proceeding */
 	while (!dwt_checkidlerc()){
 	};
@@ -45,7 +51,7 @@ bool sit_init(dwt_config_t config, int TX_ANT_DLY, int RX_ANT_DLY) {
 	dwt_setleds(DWT_LEDS_ENABLE | DWT_LEDS_INIT_BLINK);
 
 	/* if the dwt_configure returns DWT_ERROR either the PLL or RX calibration has failed the host should reset the device */
-	if (dwt_configure(&config)){
+	if (dwt_configure(config)){
 		LOG_WRN("CONFIG FAILED     ");
 		return -2;
 	}
@@ -60,7 +66,7 @@ bool sit_init(dwt_config_t config, int TX_ANT_DLY, int RX_ANT_DLY) {
 	 * Note, in real low power applications the LEDs should not be used. */
 	dwt_setlnapamode(DWT_LNA_ENABLE | DWT_PA_ENABLE);
 
-	return 0;
+	return 1;
 }
 
 void sit_setRxAfterTxDelay(uint32_t delay_us, uint16_t timeout) {

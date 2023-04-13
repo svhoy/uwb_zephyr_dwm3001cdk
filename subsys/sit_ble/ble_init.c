@@ -19,8 +19,13 @@
 #include <zephyr/bluetooth/services/bas.h>
 
 #define LOG_LEVEL 3
+<<<<<<< HEAD
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(BLE_INIT, LOG_LEVEL_WRN);
+=======
+#include <logging/log.h>
+LOG_MODULE_REGISTER(SIT_BLE_INIT, LOG_LEVEL_WRN);
+>>>>>>> 9ed40b4 (cleanup some files)
 
 #include "ble_init.h"
 #include "cts.h"
@@ -175,7 +180,7 @@ static void bt_ready(void)
 {
 	int err;
 
-	printk("Bluetooth initialized\n");
+	LOH_INF("Bluetooth initialized\n");
 
 	ble_set_device_name("DWM3001 Blue");
 	ble_device_name();
@@ -235,31 +240,27 @@ int ble_get_command() {
 }
 
 
-void bas_notify(void)
-{
+void bas_notify(void) {
 	uint8_t battery_level = bt_bas_get_battery_level();
-
 	battery_level--;
 
 	if (!battery_level) {
 		battery_level = 100U;
 	}
-
 	bt_bas_set_battery_level(battery_level);
 }
 
-void ble_init(void)
-{
+uint8_t sit_ble_init(void){
 	int err;
-
 	err = bt_enable(NULL);
 	if (err) {
 		LOG_ERR("Bluetooth init failed (err %d)\n", err);
-		return;
+		return err;
 	}
-
 	bt_ready();
 
 	bt_conn_cb_register(&conn_callbacks);
 	bt_conn_auth_cb_register(&auth_cb_display);
+
+	return 0;
 }

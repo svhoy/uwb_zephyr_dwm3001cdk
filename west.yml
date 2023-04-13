@@ -5,10 +5,6 @@ manifest:
       url-base: https://github.com/svhoy/uwb_zephyr_project
     - name: zephyrproject
       url-base: https://github.com/zephyrproject-rtos
-<<<<<<< HEAD
-=======
-
->>>>>>> 40dc337 (remove 2nd driver description)
 
   defaults:
     remote: sit

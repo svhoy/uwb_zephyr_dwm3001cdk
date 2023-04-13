@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#include <kernel.h>
-#include <sys/printk.h>
-#include <logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/logging/log.h>
 
 #include "sit_led.h"
 

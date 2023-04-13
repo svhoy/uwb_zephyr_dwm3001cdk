@@ -29,11 +29,11 @@
 #include <port.h>
 #include <shared_defines.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/conn.h>
-#include <bluetooth/uuid.h>
-#include <bluetooth/gatt.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/hci.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/bluetooth/gatt.h>
 
 #include <sit.h>
 #include <sit_led.h>
@@ -42,8 +42,8 @@
 
 #define APP_NAME "SIMPLE TWR Initiator BLE EXAMPLE\n"
 
-#include <zephyr.h>
-#include <logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 /* Default communication configuration. We use default non-STS DW mode. */
@@ -88,7 +88,7 @@ static uint8_t frame_seq_nb = 0;
 
 uint32_t regStatus = 0;
 
-void main(void) {
+int main(void) {
 	printk(APP_NAME);
 	printk("==================\n");
 
@@ -159,4 +159,5 @@ void main(void) {
             k_sleep(K_MSEC(RNG_DELAY_MS));
         }
 	}
+    return 0;
 }

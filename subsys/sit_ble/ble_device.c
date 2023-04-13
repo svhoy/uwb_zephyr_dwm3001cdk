@@ -1,21 +1,22 @@
 /* 
  *  ble_device.c 
  */
-#include <zephyr/types.h>
+
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/printk.h>
-#include <zephyr.h>
+#include <zephyr/types.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/kernel.h>
 
-#include <bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/bluetooth.h>
 
 #include "ble_device.h"
 #include "ble_init.h"
 
 #define LOG_LEVEL 3
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(ble_device);
 
 int ble_set_device_name(const char * name)

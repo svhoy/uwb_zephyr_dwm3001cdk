@@ -5,13 +5,8 @@
  * This is an Simple Bluetooth Low Energy Example for the 
  * DWM1001-DEV Board Zephyr
  */
-#include <zephyr/types.h>
-#include <stddef.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/printk.h>
-#include <sys/byteorder.h>
-#include <zephyr.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/kernel.h>
 
 #include "sit_led.h"
 #include "ble_device.h"

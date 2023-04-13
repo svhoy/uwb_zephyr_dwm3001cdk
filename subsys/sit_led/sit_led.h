@@ -9,7 +9,7 @@ extern "C"
 {
 #endif
 
-#include <drivers/gpio.h>
+#include <zephyr/drivers/gpio.h>
 
 #define LED0_NODE 	DT_ALIAS(led0)
 #define LED1_NODE 	DT_ALIAS(led1)

@@ -2,8 +2,8 @@
 
 #include <string.h>
 
-#include <logging/log.h>
-#include <sys/printk.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/sys/printk.h>
 
 #include "deca_probe_interface.h"
 #include <config_options.h>
@@ -21,10 +21,8 @@ static uint32_t status_reg = 0;
 extern dwt_txconfig_t txconfig_options;
 
 bool sit_init(dwt_config_t config, int TX_ANT_DLY, int RX_ANT_DLY) {
-
 	device_init();
-	/* Configure SPI rate, DW3000 supports up to 36 MHz */
-	port_set_dw_ic_spi_fastrate();
+	port_set_dw_ic_spi_slowrate();
 	
 	/* Reset and initialize DW chip. */
 	reset_DWIC(); /* Target specific drive of RSTn line into DW3000 low for a period. */
@@ -37,7 +35,8 @@ bool sit_init(dwt_config_t config, int TX_ANT_DLY, int RX_ANT_DLY) {
 	/* Need to make sure DW IC is in IDLE_RC before proceeding */
 	while (!dwt_checkidlerc()){
 	};
-
+	/* Configure SPI rate, DW3000 supports up to 36 MHz */
+	port_set_dw_ic_spi_fastrate();
 	if (dwt_initialise(DWT_DW_INIT) == DWT_ERROR) {
 		LOG_WRN("dwt_initialise failed");
 		return -1;

@@ -1,11 +1,13 @@
-#include <zephyr/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+
+#include <zephyr/kernel.h>
 #include <deca_device_api.h>
 
-//#define SPEED_OF_LIGHT 299702547
+#define SPEED_OF_LIGHT 299702547
 
 typedef enum {
     twr_1_poll,
@@ -64,8 +66,8 @@ bool sit_sendAt(uint8_t* msg_data, uint16_t size, uint64_t tx_time);
 uint32_t sit_poll_receive();
 
 void sit_receiveNow(uint16_t timeout);
-bool sit_checkReceivedIdMsg(msg_id_t id, msg_header_t& message);
-bool sit_checkReceivedIdFinalMsg(msg_id_t id, msg_ss_twr_final_t& message);
+bool sit_checkReceivedIdMsg(msg_id_t id, msg_header_t* message);
+bool sit_checkReceivedIdFinalMsg(msg_id_t id, msg_ss_twr_final_t* message);
 bool sit_checkReceivedMessage(uint8_t* data, uint16_t expected_size);
 
 void recover_tx_errors();

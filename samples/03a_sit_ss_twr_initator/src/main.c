@@ -81,7 +81,7 @@ int main(void) {
 	printk(APP_NAME);
 	printk("==================\n");
 
-	int init_ok = sit_init(config, TX_ANT_DLY, RX_ANT_DLY);
+	int init_ok = sit_init(&config, TX_ANT_DLY, RX_ANT_DLY);
 	// INIT LED and let them Blink one Time to see Intitalion Finshed
     sit_led_init();
 
@@ -112,7 +112,7 @@ int main(void) {
         msg_ss_twr_final_t rx_final_msg;
 		msg_id_t msg_id = ss_twr_2_resp;
         regStatus = sit_getRegStatus();
-        if(sit_checkReceivedIdFinalMsg(msg_id, rx_final_msg)) {
+        if(sit_checkReceivedIdFinalMsg(msg_id, &rx_final_msg)) {
             uint64_t poll_tx_ts = get_tx_timestamp_u64();
 			uint64_t resp_rx_ts = get_rx_timestamp_u64();
 			

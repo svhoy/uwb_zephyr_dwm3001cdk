@@ -92,7 +92,7 @@ int main(void) {
 	printk(APP_NAME);
 	printk("==================\n");
 
-	int init_ok = sit_init(config, TX_ANT_DLY, RX_ANT_DLY);
+	int init_ok = sit_init(&config, TX_ANT_DLY, RX_ANT_DLY);
 	// INIT LED and let them Blink one Time to see Intitalion Finshed
     sit_led_init();
     ble_device_init();

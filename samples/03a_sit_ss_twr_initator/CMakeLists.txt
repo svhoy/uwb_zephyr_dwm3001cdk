@@ -12,7 +12,7 @@ project(sit_ss_twr_initiator_example)
 zephyr_library_compile_options(-O1)
 
 target_sources(app PRIVATE
-  src/main.cpp
+  src/main.c
 )
 
 target_include_directories(app PRIVATE ../../platform)

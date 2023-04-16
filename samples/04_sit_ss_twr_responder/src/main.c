@@ -78,7 +78,7 @@ int main(void) {
 	printk(APP_NAME);
 	printk("==================\n");
 
-	int init_ok = sit_init(config, TX_ANT_DLY, RX_ANT_DLY);
+	int init_ok = sit_init(&config, TX_ANT_DLY, RX_ANT_DLY);
 	// INIT LED and let them Blink one Time to see Intitalion Finshed
     sit_led_init();
     
@@ -101,7 +101,7 @@ int main(void) {
 		sit_receiveNow(0);
         msg_header_t rx_poll_msg;
 		msg_id_t msg_id = twr_1_poll;
-		if(sit_checkReceivedIdMsg(msg_id, rx_poll_msg)){
+		if(sit_checkReceivedIdMsg(msg_id, &rx_poll_msg)){
 			uint64_t poll_rx_ts = get_rx_timestamp_u64();
             
             uint32_t resp_tx_time = (poll_rx_ts + (POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;

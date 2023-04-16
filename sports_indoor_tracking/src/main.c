@@ -16,8 +16,9 @@
 
 #define APP_NAME "Sports Indoor Tracking\n"
 
-#include <zephyr.h>
-#include <logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/drivers/hwinfo.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sit_main, LOG_LEVEL_INF);
 
 #define TX_ANT_DLY 16385
@@ -52,12 +53,17 @@ void main(void) {
 	uint8_t init_error = 0;
 
 	// repeat configuration when failed
-	while(init_error > 1) {
+	do {
 		init_error = sit_init(&config, TX_ANT_DLY, RX_ANT_DLY);
-	}
+	} while (init_error > 1);
 	
 	LOG_INF("Init Fertig ");
+	
+	uint32_t dev_id = dwt_getpartid();
+	
+	LOG_INF("Device ID: %lu", dev_id);
 
+	
 	// while(42) { //Life, the universe, and everything
 
 	// }

@@ -12,7 +12,7 @@ project(sports_indoor_tracking)
 zephyr_library_compile_options(-O1)
 
 target_sources(app PRIVATE
-  src/main.cpp
+  src/main.c
 )
 
 target_include_directories(app PRIVATE ../platform)

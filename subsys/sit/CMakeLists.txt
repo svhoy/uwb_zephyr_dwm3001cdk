@@ -2,7 +2,7 @@
 
 zephyr_library()
 
-zephyr_library_sources_ifdef(CONFIG_SIT sit.cpp)
+zephyr_library_sources_ifdef(CONFIG_SIT sit.c)
 
 target_sources(app PRIVATE ../../platform/port.c ../../platform/config_options.c)
 

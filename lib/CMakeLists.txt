@@ -1,0 +1,6 @@
+add_subdirectory_ifdef(CONFIG_SIT sit)
+add_subdirectory_ifdef(CONFIG_SIT_BLE sit_ble)
+add_subdirectory_ifdef(CONFIG_SIT_LED sit_led)
+add_subdirectory_ifdef(CONFIG_SIT_MESH sit_mesh)
+add_subdirectory_ifdef(CONFIG_SIT_JSON sit_json)
+add_subdirectory_ifdef(CONFIG_SIT_JSON cJSON)

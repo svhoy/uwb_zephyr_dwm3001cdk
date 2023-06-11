@@ -1,5 +1,7 @@
-zephyr_library()
+zephyr_include_directories(platform)
 
+add_subdirectory_ifdef(CONFIG_DW3000 dw3000)
+add_subdirectory_ifdef(CONFIG_DW3000 platform)
 add_subdirectory_ifdef(CONFIG_SENSOR sensor)
 add_subdirectory_ifdef(CONFIG_BATTERY battery)
 

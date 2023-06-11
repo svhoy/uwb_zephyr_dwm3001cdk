@@ -69,7 +69,7 @@ uint8_t responder_node_id       = 2;
 /*rx twr_2_resp after tx twr_1_poll
  protected by responder's mp_request_at(twr_2_resp):POLL_RX_TO_RESP_TX_DLY_UUS
 */
-#define POLL_TX_TO_RESP_RX_DLY_UUS 300
+#define POLL_TX_TO_RESP_RX_DLY_UUS 500
 
 /* Delay between frames, in UWB microseconds. See NOTE 1 below. */
 #define POLL_RX_TO_RESP_TX_DLY_UUS 650
@@ -88,7 +88,7 @@ int main(void) {
         sit_set_led(1, 0);
     }
 
-    uint32_t regStatus = sit_getRegStatus();
+    uint32_t regStatus = sit_get_device_status();
     LOG_INF("statusreg = 0x%08x",regStatus);
     k_sleep(K_SECONDS(2)); // Allow Logging to write out put 
 
@@ -96,7 +96,7 @@ int main(void) {
     k_yield();
 
 	while (1) {
-		regStatus = sit_getRegStatus();
+		regStatus = sit_get_device_status();
 		LOG_INF("sequence(%u) starting ; statusreg = 0x%08x",frame_sequenz,regStatus);
 		sit_receiveNow(0);
         msg_header_t rx_poll_msg;
@@ -118,7 +118,7 @@ int main(void) {
 			LOG_WRN("Something is wrong");
             dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
 		}
-		regStatus = sit_getRegStatus();
+		regStatus = sit_get_device_status();
 		LOG_INF("sequence(%u) ending ; statusreg = 0x%08x",frame_sequenz,regStatus);
 		frame_sequenz++;
         k_sleep(K_MSEC(RNG_DELAY_MS));

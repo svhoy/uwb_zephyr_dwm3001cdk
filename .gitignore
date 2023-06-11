@@ -31,3 +31,12 @@ doc/*_doc.log
 
 ext/lib/bin/supl
 ext/lib/bin/libsupl.zip
+
+# python
+.venv
+
+# build
+/build*
+/twister-out*
+
+__pycache__/

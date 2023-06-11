@@ -1,71 +1,118 @@
-/**
+/**********************************************************************************
+ * 
+ *  Copyright (C) 2023  Sven Hoyer
  *
- * Copyright (c) 2022 - Sven Hoyer
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * 
- * Sports Indoor Tracking System Main
- * 
+***********************************************************************************/
+
+/** 
+ * @file main.c
+ * @author Sven Hoyer (svhoy)
+ * @date 17.04.2023
+ * @brief Main File for start and running the SIT System.
+ *
+ * The main of Sports Indoor Tracking System. This File Handles the subsys. 
+ * Here main handle will start. 
+ *  
+ * @bug No known bugs.
+ * @todo everything 
  */
-#include <deca_device_api.h>
+#include "deca_device_api.h"
 
-#include <sit.h>
-#include <sit_led.h>
-#include <sit_json.h>
+#include <sit/sit.h>
+#include <sit/sit_device.h>
+#include <sit/sit_config.h>
+#include <sit_led/sit_led.h>
+#include <sit_json/sit_json.h>
 
-#include <ble_init.h>
-#include <ble_device.h>
+#include <sit_ble/ble_init.h>
+#include <sit_ble/ble_device.h>
+
+#include <stdio.h>
+#include <string.h>
 
 #define APP_NAME "Sports Indoor Tracking\n"
 
 #include <zephyr/kernel.h>
-#include <zephyr/drivers/hwinfo.h>
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sit_main, LOG_LEVEL_INF);
 
-#define TX_ANT_DLY 16385
-#define RX_ANT_DLY 16385
 
-static dwt_config_t config = {
-    5,                /* Channel number. */
-    DWT_PLEN_128,     /* Preamble length. Used in TX only. */
-    DWT_PAC8,         /* Preamble acquisition chunk size. Used in RX only. */
-    9,                /* TX preamble code. Used in TX only. */
-    9,                /* RX preamble code. Used in RX only. */
-    DWT_SFD_DW_8,     /* 0 to use standard 8 symbol SFD, 1 to use non-standard 8 symbol, 2 for non-standard 16 symbol SFD and 3 for 4z 8 symbol SDF type */
-    DWT_BR_6M8,       /* Data rate. */
-    DWT_PHRMODE_STD,  /* PHY header mode. */
-    DWT_PHRRATE_STD,  /* PHY header rate. */
-    (129 + 8 - 8),    /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
-    DWT_STS_MODE_OFF, /* STS disabled */
-    DWT_STS_LEN_64,   /* STS length see allowed values in Enum dwt_sts_lengths_e */
-    DWT_PDOA_M0       /* PDOA mode off */
-};
+device_type device;
 
-void main(void) {
-	printk(APP_NAME);
-	printk("==================\n");
+void initialization() {
+	uint8_t error = 0;
 
 	sit_led_init();
-	if (sit_ble_init()) {
-		LOG_ERR("Bluetooth init failed");
+	if(device == initiator) {
+		if (sit_ble_init()) {
+			LOG_ERR("Bluetooth init failed");
+		}
 	}
-	
-
-	uint8_t init_error = 0;
 
 	// repeat configuration when failed
 	do {
-		init_error = sit_init(&config, TX_ANT_DLY, RX_ANT_DLY);
-	} while (init_error > 1);
+		error = sit_init();
+	} while (error > 1);
 	
 	LOG_INF("Init Fertig ");
-	
-	uint32_t dev_id = dwt_getpartid();
-	
-	LOG_INF("Device ID: %lu", dev_id);
+}
 
-	
-	// while(42) { //Life, the universe, and everything
+void start_ble_connection() {
+	ble_start_advertising();
+	while(!is_connected()) {
+		sit_toggle_led(3);
+		k_msleep(500);
+	}
+}
 
-	// }
+void check_ble_connection() {
+	if(!is_connected()) {
+		start_ble_connection();
+		sit_set_led(3, 1);
+	}
+}
 
+int main(int argc, char *argv[])  {
+	printk(APP_NAME);
+	printk("==================\n");
+	init_device_id();
+	char *deviceID;
+	get_device_id(&deviceID);
+	if (memcmp(deviceID, "65C75B3AA44CCFD5", sizeof(deviceID)) == 0) {
+		device = responder;
+	} else if (memcmp(deviceID, "A019663A7E8C055E", sizeof(deviceID)) == 0){
+		device = initiator;
+	}
+
+	initialization();
+	uint32_t sequenz = 0;
+	while(42) { //Life, the universe, and everything
+		if(device == initiator) {
+			//check_ble_connection();
+			if (device_settings.state == measurement) {
+				sit_sstwr_initiator(sequenz, 1, 2);
+				sequenz++;
+				LOG_INF("Sequenz: %u", sequenz);
+			}
+		} else if (device == responder) {
+			sit_responder(sequenz);
+			sequenz++;
+			LOG_INF("Sequenz: %u", sequenz);
+		}
+		k_msleep(100);
+	}
+	return 0;
 }

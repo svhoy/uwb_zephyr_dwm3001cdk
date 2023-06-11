@@ -1,0 +1,10 @@
+config SIT
+	bool "SIT Interface"
+	imply SIT_LED
+	help
+	  Enable All Sit Features for an Sports Indoor Tracking System (SIT) 
+
+config SIT_DIAGNOSTIC
+	bool "SIT Diagnostic Interface"
+	help
+	  Enable All Sit Diagnostic Features for distance measurements 

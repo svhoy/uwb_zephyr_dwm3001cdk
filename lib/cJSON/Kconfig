@@ -1,0 +1,10 @@
+config cJSON
+	bool "cJSON Lib"
+	help
+	  Enable cJSON Funcionality 
+	  
+config SIT_CTS
+	bool "SIT CTS Interface"
+	help
+	  Enable CTS Funcionality 
+

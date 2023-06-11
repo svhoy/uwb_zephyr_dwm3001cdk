@@ -12,9 +12,17 @@ project(sit_ble_json)
 zephyr_library_compile_options(-O1)
 
 target_sources(app PRIVATE
+<<<<<<< HEAD
   src/main.c
 )
 
 target_include_directories(app PRIVATE ../../drivers/platform)
 
+=======
+  src/main.cpp
+)
+
+target_include_directories(app PRIVATE ../../platform)
+target_include_directories(app PRIVATE ../../dw3000-decadriver/platform)
+>>>>>>> ff362bf66e19695f84539017a17d068f88ec076d
 

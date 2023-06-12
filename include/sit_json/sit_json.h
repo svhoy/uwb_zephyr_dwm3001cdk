@@ -19,5 +19,4 @@ int json_decode_state_msg(char *json, json_command_msg_t *command_struct);
 }
 #endif
 
-
 #endif  // __SIT_JSON_H__

@@ -39,7 +39,7 @@ LOG_MODULE_REGISTER(SIT_CONFIG, LOG_LEVEL_INF);
 
 device_settings_t device_settings = {
     .deviceID = "A",
-    .state = measurement,
+    .state = sleep,
     .diagnostic = false,
 };
 

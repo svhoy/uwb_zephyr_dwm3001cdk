@@ -59,6 +59,7 @@ json_distance_msg_t distance_notify = {
 	.type = "distance_msg",
 	.data = {
 		.state = "running",
+		.sequenz = 0,
 		.distance = 0
 	}
 };
@@ -156,6 +157,7 @@ void sit_sstwr_initiator(uint8_t frame_sequenz, uint8_t initiator_node_id, uint8
 		LOG_INF("initiator -> responder Distance: %3.2lf \n", distance);
 		if (distance >= 0) {
 			distance_notify.data.distance = distance;
+			distance_notify.data.sequenz =frame_sequenz;
 			ble_sit_notify(&distance_notify, sizeof(distance_notify));
 		}
 	} else {

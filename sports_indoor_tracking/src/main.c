@@ -101,7 +101,7 @@ int main(int argc, char *argv[])  {
 	uint32_t sequenz = 0;
 	while(42) { //Life, the universe, and everything
 		if(device == initiator) {
-			//check_ble_connection();
+			check_ble_connection();
 			if (device_settings.state == measurement) {
 				sit_sstwr_initiator(sequenz, 1, 2);
 				sequenz++;

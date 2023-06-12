@@ -35,7 +35,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <sit/sit_config.h>
+
 #include <sit_json/sit_json.h>
 
 #include <zephyr/kernel.h>
@@ -255,7 +255,7 @@ static struct bt_conn_auth_cb auth_cb_display = {
 	.cancel = auth_cancel,
 };
 
-void ble_sit_notify(char *json_data, size_t data_len) {
+void ble_sit_notify(json_distance_msg_t *json_data, size_t data_len) {
 	LOG_INF("Test 1");
 	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
 	LOG_INF("Test 2");

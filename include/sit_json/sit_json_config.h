@@ -11,22 +11,11 @@ extern "C"
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <zephyr/data/json.h>
 
 #include "sit_json_config.h"
-
-typedef struct {
-    char state[15];
-    int32_t distance;
-} json_data_t;
-
-typedef struct  {
-    char type[15];
-    json_data_t data;
-} json_distance_msg_t; 
-
-
 typedef struct {
     char type[16];
     char command[6];

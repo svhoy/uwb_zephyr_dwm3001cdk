@@ -105,6 +105,17 @@ typedef struct {
     uint16_t crc;
 } msg_ds_twr_final_t;
 
+typedef struct {
+    char state[15];
+    uint32_t sequenz;
+    float distance;
+} json_data_t;
+
+typedef struct  {
+    char type[15];
+    json_data_t data;
+} json_distance_msg_t; 
+
 
 static dwt_config_t sit_device_config = {
     9,                /* Channel number. */

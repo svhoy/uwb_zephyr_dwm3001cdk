@@ -39,6 +39,8 @@ extern "C"
 
 #include <stdlib.h>
 
+#include <sit/sit_config.h>
+
 #include "ble_device.h"
 #include "ble_uuids.h" 
 
@@ -55,7 +57,7 @@ uint8_t sit_ble_init(void);
 
 
 bool is_connected(void);
-void ble_sit_notify(char* json_data, size_t data_len);
+void ble_sit_notify(json_distance_msg_t* json_data, size_t data_len);
 int ble_get_command(void);
 void bas_notify(void);
 

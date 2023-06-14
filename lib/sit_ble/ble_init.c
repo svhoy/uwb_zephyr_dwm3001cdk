@@ -35,7 +35,7 @@
 #include <string.h>
 #include <errno.h>
 
-
+#include <sit/sit.h>
 #include <sit_json/sit_json.h>
 
 #include <zephyr/kernel.h>
@@ -122,6 +122,9 @@ static ssize_t write_json_comand(
 		LOG_ERR("JSON Parse Error: %d", ret);
 	} else {
 		if (strcmp(command_str.type, "measurement_msg") == 0 ){
+			if(strcmp(command_str.command, "start")) {
+				reset_sequence();
+			}
 			set_device_state(command_str.command);
 		} else {
 			LOG_ERR("Command: %s", command_str.type);
@@ -177,7 +180,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 		bt_conn_unref(default_conn);
 		default_conn = NULL;
 	} else {
-		LOG_INF("Connected");
+		LOG_DBG("Connected");
 		connection_status = true;
 		default_conn = bt_conn_ref(conn);
 	}
@@ -256,9 +259,7 @@ static struct bt_conn_auth_cb auth_cb_display = {
 };
 
 void ble_sit_notify(json_distance_msg_t *json_data, size_t data_len) {
-	LOG_INF("Test 1");
 	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
-	LOG_INF("Test 2");
 }
 
 void bas_notify(void) {

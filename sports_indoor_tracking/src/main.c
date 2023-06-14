@@ -49,7 +49,6 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sit_main, LOG_LEVEL_INF);
 
-
 device_type device;
 
 void initialization() {
@@ -98,19 +97,14 @@ int main(int argc, char *argv[])  {
 	}
 
 	initialization();
-	uint32_t sequenz = 0;
 	while(42) { //Life, the universe, and everything
 		if(device == initiator) {
 			check_ble_connection();
 			if (device_settings.state == measurement) {
-				sit_sstwr_initiator(sequenz, 1, 2);
-				sequenz++;
-				LOG_INF("Sequenz: %u", sequenz);
+				sit_sstwr_initiator(1, 2);
 			}
 		} else if (device == responder) {
-			sit_responder(sequenz);
-			sequenz++;
-			LOG_INF("Sequenz: %u", sequenz);
+			sit_responder();
 		}
 		k_msleep(100);
 	}

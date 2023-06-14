@@ -54,6 +54,8 @@
 ****************************************************************************/
 uint8_t sit_init();
 
-void sit_sstwr_initiator(uint8_t frame_sequenz, uint8_t initiator_node_id, uint8_t responder_node_id);
+void sit_sstwr_initiator(uint8_t initiator_node_id, uint8_t responder_node_id);
 
-void sit_responder(uint8_t frame_sequenz);
+void sit_responder();
+
+void reset_sequence();

@@ -107,8 +107,11 @@ typedef struct {
 
 typedef struct {
     char state[15];
-    uint32_t sequenz;
+    uint32_t sequence;
     float distance;
+    uint8_t nlos_percent;
+    float rssi_index_resp;
+    float fp_index_resp;
 } json_data_t;
 
 typedef struct  {

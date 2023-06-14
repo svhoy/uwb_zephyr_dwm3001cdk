@@ -59,8 +59,11 @@ json_distance_msg_t distance_notify = {
 	.type = "distance_msg",
 	.data = {
 		.state = "running",
-		.sequenz = 0,
-		.distance = 0
+		.sequence = 0,
+		.distance = 0,
+		.nlos_percent = 0,
+		.rssi_index_resp = 0,
+		.fp_index_resp = 0
 	}
 };
 /**
@@ -75,6 +78,7 @@ dwt_txconfig_t txconfig_options_ch9_sit = {
 
 uint16_t antennadely = 16385;
 
+uint32_t sequence = 0;
 
 uint8_t sit_init() {
 	
@@ -128,9 +132,9 @@ uint8_t sit_init() {
 	return 1;
 }
 
-void sit_sstwr_initiator(uint8_t frame_sequenz, uint8_t initiator_node_id, uint8_t responder_node_id) {
+void sit_sstwr_initiator(uint8_t initiator_node_id, uint8_t responder_node_id) {
 	sit_set_rx_tx_delay_rx_timeout(POLL_TX_TO_RESP_RX_DLY_UUS, RESP_RX_TIMEOUT_UUS);
-	msg_header_t twr_poll = {twr_1_poll, frame_sequenz, initiator_node_id , responder_node_id, 0};
+	msg_header_t twr_poll = {twr_1_poll, (uint8_t)sequence, initiator_node_id , responder_node_id, 0};
 	sit_start_poll((uint8_t*) &twr_poll, (uint16_t)sizeof(twr_poll));
 
 	msg_ss_twr_final_t rx_final_msg;
@@ -157,16 +161,20 @@ void sit_sstwr_initiator(uint8_t frame_sequenz, uint8_t initiator_node_id, uint8
 		LOG_INF("initiator -> responder Distance: %3.2lf \n", distance);
 		if (distance >= 0) {
 			distance_notify.data.distance = distance;
-			distance_notify.data.sequenz =frame_sequenz;
+			distance_notify.data.sequence = sequence;
+			distance_notify.data.nlos_percent = diagnostic.nlos;
+			distance_notify.data.rssi_index_resp = diagnostic.rssi;
+			distance_notify.data.fp_index_resp = diagnostic.fpi;
 			ble_sit_notify(&distance_notify, sizeof(distance_notify));
 		}
 	} else {
 		LOG_WRN("Something is wrong");
 		dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
 	}
+	sequence++;
 }
 
-void sit_responder(uint8_t frame_sequenz) {
+void sit_responder() {
 	sit_receive_at(0);
     msg_header_t rx_poll_msg;
 	msg_id_t msg_id = twr_1_poll;
@@ -196,4 +204,6 @@ void sit_responder(uint8_t frame_sequenz) {
 	}
 }
 
-
+void reset_sequence() {
+	sequence = 0;
+}

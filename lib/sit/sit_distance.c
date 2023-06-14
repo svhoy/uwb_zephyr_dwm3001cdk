@@ -78,7 +78,7 @@ bool sit_send_at(uint8_t* msg_data, uint16_t size, uint64_t tx_time){
 	if(late == DWT_SUCCESS) {
 		waitforsysstatus(&status_reg, NULL, DWT_INT_TXFRS_BIT_MASK, 0);
 		dwt_writesysstatuslo(DWT_INT_RXFCG_BIT_MASK); // write to clear send status bit
-		LOG_WRN("Send Success");
+		LOG_DBG("Send Success");
 		return true;
 	} else {
 		recover_tx_errors();

@@ -39,6 +39,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+extern diagnostic_info diagnostic; 
+
 /***************************************************************************
  * Start ranging with a poll msg 
  *

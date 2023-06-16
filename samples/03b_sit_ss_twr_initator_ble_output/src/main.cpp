@@ -103,7 +103,7 @@ int main(void) {
         sit_set_led(1, 0);
     }
     
-    regStatus = sit_getRegStatus();
+    regStatus = sit_get_device_status();
     LOG_INF("statusreg = 0x%08x",regStatus);
     k_sleep(K_SECONDS(2)); // Allow Logging to write out put 
 
@@ -118,19 +118,19 @@ int main(void) {
             sit_toggle_led(3);
         }
         while (is_connected()) {
-            regStatus = sit_getRegStatus();
+            regStatus = sit_get_device_status();
             LOG_INF("initiator> sequence(%u) starting ; statusreg = 0x%08x",frame_sequenz,regStatus);
             sit_setRxAfterTxDelay(POLL_TX_TO_RESP_RX_DLY_UUS, RESP_RX_TIMEOUT_UUS);
             msg_header_t twr_poll = {twr_1_poll, frame_sequenz, this_initiator_node_id , responder_node_id,0};
             sit_startPoll((uint8_t*) &twr_poll, (uint16_t)sizeof(twr_poll));
-            regStatus = sit_getRegStatus();
+            regStatus = sit_get_device_status();
             LOG_INF("statusreg = 0x%08x",regStatus);
 
             frame_sequenz++;
 
             msg_ss_twr_final_t rx_final_msg;
             msg_id_t msg_id = ss_twr_2_resp;
-            regStatus = sit_getRegStatus();
+            regStatus = sit_get_device_status();
             if(sit_checkReceivedIdFinalMsg(msg_id, rx_final_msg)) {
                 uint64_t poll_tx_ts = get_tx_timestamp_u64();
                 uint64_t resp_rx_ts = get_rx_timestamp_u64();

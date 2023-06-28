@@ -210,8 +210,9 @@ static void bt_ready(void)
 	int err;
 
 	LOG_INF("Bluetooth initialized\n");
-
-	ble_set_device_name("DWM3001 Blue");
+	char *deviceID;
+	get_device_id(&deviceID);
+	ble_set_device_name(deviceID);
 	ble_device_name();
 	// ble_device_address();
 

@@ -21,6 +21,13 @@ typedef struct {
     char command[6];
 } json_command_msg_t;
 
+typedef struct {
+    char type[16];
+    char initiator_device[17];
+    uint8_t initiator;
+    char responder_device[4][17];
+    uint8_t responder;
+} json_setup_msg_t;
 
 #ifdef __cplusplus
 }

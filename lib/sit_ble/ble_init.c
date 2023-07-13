@@ -78,6 +78,9 @@ static struct bt_uuid_128 sit_int_command_uuid = BT_UUID_INIT_128(
 static struct bt_uuid_128 sit_json_command_uuid = BT_UUID_INIT_128(
 	BT_UUID_SIT_JSON_COMMAND_VAL);
 
+static struct bt_uuid_128 sit_json_setup_uuid = BT_UUID_INIT_128(
+	BT_UUID_SIT_JSON_SETUP_VAL);
+
 static ssize_t write_int_comand(
 		struct bt_conn *conn,
 		const struct bt_gatt_attr *attr,
@@ -134,6 +137,47 @@ static ssize_t write_json_comand(
 	return len;
 }
 
+static ssize_t write_json_setup(
+		struct bt_conn *conn,
+		const struct bt_gatt_attr *attr,
+		const void *buf,
+		uint16_t len,
+		uint16_t offset,
+		uint8_t flags
+	) {
+	char *value = malloc(len + 1);
+	json_setup_msg_t setup_str;
+
+	memcpy(value, buf, len);
+	value[len+1] = '\0';
+	int ret = json_decode_setup_msg(value, &setup_str);
+	if (ret < 0) {
+		LOG_ERR("JSON Parse Error: %d", ret);
+	} else {
+		if (strncmp(setup_str.initiator_device, bt_get_name(), 16) == 0 ){
+			LOG_INF("Test Initiator");
+			device_type = initiator;
+			set_device_id(1);
+			set_responder(setup_str.responder);
+		} else {
+			for(uint8_t i; i<setup_str.responder; i++) {
+				if (strncmp(setup_str.responder_device, bt_get_name(), 16) == 0 ) {
+					LOG_INF("Test Responder");
+					device_type = responder;
+					set_device_id(i + setup_str.initiator + 1);
+					break;
+				}  else {
+					LOG_ERR("Setup: %s", setup_str.type);
+					device_type = none;
+				}
+			}
+			
+		}
+	}
+	free(value);
+	return len;
+}
+
 static void sit_pos_ccc_cfg_changed(
 		const struct bt_gatt_attr *attr,
 		uint16_t value
@@ -160,6 +204,10 @@ BT_GATT_SERVICE_DEFINE(sit_service,
 			       BT_GATT_CHRC_WRITE,
 			       BT_GATT_PERM_WRITE,
 			       NULL, write_json_comand, NULL),
+	BT_GATT_CHARACTERISTIC(&sit_json_setup_uuid.uuid,
+			       BT_GATT_CHRC_WRITE,
+			       BT_GATT_PERM_WRITE,
+			       NULL, write_json_setup, NULL),
 );
 
 static const struct bt_data ad[] = {
@@ -190,6 +238,8 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	printk("Disconnected (reason 0x%02x)\n", reason);
 	connection_status = false;
+	device_type = none;
+	set_device_state("stop");
 	if (default_conn){
 		bt_conn_unref(default_conn);
 		default_conn = NULL;

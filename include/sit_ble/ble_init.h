@@ -40,6 +40,7 @@ extern "C"
 #include <stdlib.h>
 
 #include <sit/sit_config.h>
+#include <sit/sit_device.h>
 
 #include "ble_device.h"
 #include "ble_uuids.h" 

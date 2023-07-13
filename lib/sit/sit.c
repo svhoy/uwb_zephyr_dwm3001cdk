@@ -134,7 +134,7 @@ uint8_t sit_init() {
 
 void sit_sstwr_initiator(uint8_t initiator_node_id, uint8_t responder_node_id) {
 	sit_set_rx_tx_delay_rx_timeout(POLL_TX_TO_RESP_RX_DLY_UUS, RESP_RX_TIMEOUT_UUS);
-	msg_header_t twr_poll = {twr_1_poll, (uint8_t)sequence, initiator_node_id , responder_node_id, 0};
+	msg_header_t twr_poll = {twr_1_poll, (uint8_t)sequence, device_settings.deviceID, device_settings.responder, 0};
 	sit_start_poll((uint8_t*) &twr_poll, (uint16_t)sizeof(twr_poll));
 
 	msg_ss_twr_final_t rx_final_msg;
@@ -190,7 +190,7 @@ void sit_responder() {
 		msg_ss_twr_final_t msg_ss_twr_final_t = {
 				ss_twr_2_resp,
 				(uint8_t)(rx_poll_msg.header.sequence),
-				rx_poll_msg.header.dest, 
+				device_settings.deviceID, 
 				rx_poll_msg.header.source,
 				(uint32_t)poll_rx_ts, 
 				resp_tx_ts,

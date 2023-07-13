@@ -46,8 +46,12 @@
 */
 typedef enum {
     initiator,  ///< initiator of SSTWR or DSTWR
-    responder   ///< responder of SSTWR or DSTWR
-} device_type;
+    responder,  ///< responder of SSTWR or DSTWR
+    none        ///< init State for every Device
+} device_type_t;
+
+extern device_type_t device_type;
+
 
 /** 
  * Enum for different mesaurements states 
@@ -58,8 +62,11 @@ typedef enum {
 } device_state;
 
 typedef struct {
-    char deviceID[17];
-    device_type type;
+    uint8_t deviceID;
+    uint8_t devices;
+    uint8_t initiator; 
+    uint8_t responder;
+    device_type_t device_type;
     device_state state;
     bool diagnostic;
 } device_settings_t;
@@ -151,5 +158,7 @@ static dwt_config_t sit_device_config = {
 #define UUS_TO_DWT_TIME 65536
 
 void set_device_state(char *comand);
+void set_device_id(uint8_t device_id);
+void set_responder(uint8_t responder);
 
 #endif // __SIT_CONFIG_H__

@@ -20,23 +20,6 @@ int json_decode_distance(char *json, size_t len, void *val) {
     return ret;
 }
 
-// int json_encode_distance(char **json, float *distance){
-//     char json_buf[128] = "{\"type\":\"measurement_msg\", \"distance\":\0";
-//     char end_char[] = "}\0";
-//     char number[10];
-//     snprintf(number, 10, "%3.5lf", *distance);
-
-
-//     strcat(json_buf, number); 
-//     strcat(json_buf, end_char);
-//     json_buf[strlen(json_buf)+1] = "\0";
-//     LOG_INF("Test: %s", json_buf);
-//     *json = k_malloc(strlen(json_buf)+1);
-//     *json = strdup(json_buf);
-
-//     return 0;
-// }
-
 int json_encode_distance(char **json, double *distance){
     cJSON *json_object = cJSON_CreateObject();
     if (cJSON_AddStringToObject(json_object, "type", "distance_msg") == NULL) {
@@ -89,6 +72,65 @@ int json_decode_state_msg(char *json, json_command_msg_t *command_struct) {
     } else {
         LOG_ERR("Something wrong");
     }
+
+    LOG_INF("Type: %s", type->valuestring);
+    cJSON_Delete(json_msg);
+
+    return 0;
+}
+
+int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
+
+    const cJSON *type = NULL;
+    const cJSON *initiator_device = NULL;
+    const cJSON *initiator = NULL;
+    const cJSON *responder_list = NULL;
+    const cJSON *responder_device = NULL;
+    const cJSON *responder = NULL;
+    cJSON *json_msg = cJSON_Parse(json);
+    if (json_msg == NULL) {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL)
+        {
+            LOG_ERR("Error before: %s\n", error_ptr);
+        }
+        return -1;
+    }
+
+    type = cJSON_GetObjectItemCaseSensitive(json_msg, "type");
+    if (cJSON_IsString(type)) {
+        LOG_INF("Checking msg type \"%s\"\n", type->valuestring);
+        strcpy(setup_struct->type, type->valuestring);
+    } else {
+        LOG_ERR("Something wrong");
+    }
+
+    initiator_device = cJSON_GetObjectItemCaseSensitive(json_msg, "initiator_device");
+    if (cJSON_IsString(initiator_device) && (initiator_device->valuestring != NULL)) {
+        LOG_INF("Checking initiator_device \"%s\"\n", initiator_device->valuestring);
+        strcpy(setup_struct->initiator_device, initiator_device->valuestring);
+    } else {
+        LOG_ERR("Something wrong");
+    }
+
+    initiator = cJSON_GetObjectItemCaseSensitive(json_msg, "initiator");
+    setup_struct->initiator = initiator->valueint;
+
+    responder_list = cJSON_GetObjectItemCaseSensitive(json_msg, "responder_device");
+    uint8_t index = 0;
+    cJSON_ArrayForEach(responder_device, responder_list) {
+        if (cJSON_IsString(responder_device) && (responder_device->valuestring != NULL)) {
+            LOG_INF("Checking responder_device \"%s\"\n", responder_device->valuestring);
+            strcpy(setup_struct->responder_device[index], responder_device->valuestring);
+        } else {
+            LOG_ERR("Something wrong");
+        }
+        index++;
+    }
+
+    responder = cJSON_GetObjectItemCaseSensitive(json_msg, "responder");
+    setup_struct->responder = responder->valueint;
+    
 
     LOG_INF("Type: %s", type->valuestring);
     cJSON_Delete(json_msg);

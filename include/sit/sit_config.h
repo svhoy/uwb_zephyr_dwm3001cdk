@@ -66,9 +66,13 @@ typedef struct {
     uint8_t devices;
     uint8_t initiator; 
     uint8_t responder;
+    uint16_t tx_ant_dly;
+    uint16_t rx_ant_dly;
     device_type_t device_type;
     device_state state;
     bool diagnostic;
+    uint8_t min_measurement;
+    uint8_t max_measurement;
 } device_settings_t;
 
 extern device_settings_t device_settings;
@@ -115,6 +119,7 @@ typedef struct {
 typedef struct {
     char state[15];
     uint32_t sequence;
+    uint32_t measurements;
     float distance;
     uint8_t nlos_percent;
     float rssi_index_resp;
@@ -160,5 +165,9 @@ static dwt_config_t sit_device_config = {
 void set_device_state(char *comand);
 void set_device_id(uint8_t device_id);
 void set_responder(uint8_t responder);
+void set_min_measurement(uint8_t measurement);
+void set_max_measurement(uint8_t measurement);
+void set_rx_ant_dly(uint16_t dly);
+void set_tx_ant_dly(uint16_t dly);
 
 #endif // __SIT_CONFIG_H__

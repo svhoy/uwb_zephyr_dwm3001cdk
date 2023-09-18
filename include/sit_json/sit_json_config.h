@@ -27,6 +27,10 @@ typedef struct {
     uint8_t initiator;
     char responder_device[4][17];
     uint8_t responder;
+    uint8_t min_measurement;
+    uint8_t max_measurement;
+    uint16_t rx_ant_dly;
+    uint16_t tx_ant_dly;
 } json_setup_msg_t;
 
 #ifdef __cplusplus

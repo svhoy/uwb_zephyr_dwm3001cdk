@@ -125,10 +125,14 @@ static ssize_t write_json_comand(
 		LOG_ERR("JSON Parse Error: %d", ret);
 	} else {
 		if (strcmp(command_str.type, "measurement_msg") == 0 ){
-			if(strcmp(command_str.command, "start")) {
+			if(strcmp(command_str.command, "start") == 0) {
 				reset_sequence();
+				set_device_state(command_str.command);
+			} else if(strcmp(command_str.command, "stop") == 0 && device_type == initiator && device_settings.min_measurement != 0 && device_settings.min_measurement > measurements) {
+				set_max_measurement(device_settings.min_measurement);
+			} else { 
+				set_device_state(command_str.command);
 			}
-			set_device_state(command_str.command);
 		} else {
 			LOG_ERR("Command: %s", command_str.type);
 		}
@@ -154,17 +158,21 @@ static ssize_t write_json_setup(
 	if (ret < 0) {
 		LOG_ERR("JSON Parse Error: %d", ret);
 	} else {
+		set_min_measurement(setup_str.min_measurement);
+		set_max_measurement(setup_str.max_measurement);
+		set_rx_ant_dly(setup_str.rx_ant_dly);
+		set_tx_ant_dly(setup_str.tx_ant_dly);
 		if (strncmp(setup_str.initiator_device, bt_get_name(), 16) == 0 ){
 			LOG_INF("Test Initiator");
 			device_type = initiator;
 			set_device_id(1);
-			set_responder(setup_str.responder);
+			set_responder(100 + setup_str.responder - 1);
 		} else {
-			for(uint8_t i; i<setup_str.responder; i++) {
+			for(uint8_t i=0; i<setup_str.responder; i++) {
 				if (strncmp(setup_str.responder_device, bt_get_name(), 16) == 0 ) {
 					LOG_INF("Test Responder");
 					device_type = responder;
-					set_device_id(i + setup_str.initiator + 1);
+					set_device_id(100 + i);
 					break;
 				}  else {
 					LOG_ERR("Setup: %s", setup_str.type);

@@ -87,6 +87,10 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
     const cJSON *responder_list = NULL;
     const cJSON *responder_device = NULL;
     const cJSON *responder = NULL;
+    const cJSON *min_measurement = NULL;
+    const cJSON *max_measurement = NULL;
+    const cJSON *rx_ant_dly = NULL;
+    const cJSON *tx_ant_dly = NULL;
     cJSON *json_msg = cJSON_Parse(json);
     if (json_msg == NULL) {
         const char *error_ptr = cJSON_GetErrorPtr();
@@ -131,6 +135,17 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
     responder = cJSON_GetObjectItemCaseSensitive(json_msg, "responder");
     setup_struct->responder = responder->valueint;
     
+    min_measurement = cJSON_GetObjectItemCaseSensitive(json_msg, "min_measurement");
+    setup_struct->min_measurement = min_measurement->valueint;
+
+    max_measurement = cJSON_GetObjectItemCaseSensitive(json_msg, "max_measurement");
+    setup_struct->max_measurement = max_measurement->valueint;
+
+    rx_ant_dly = cJSON_GetObjectItemCaseSensitive(json_msg, "rx_ant_dly");
+    setup_struct->rx_ant_dly = rx_ant_dly->valueint;
+
+    tx_ant_dly = cJSON_GetObjectItemCaseSensitive(json_msg, "tx_ant_dly");
+    setup_struct->tx_ant_dly = tx_ant_dly->valueint;
 
     LOG_INF("Type: %s", type->valuestring);
     cJSON_Delete(json_msg);

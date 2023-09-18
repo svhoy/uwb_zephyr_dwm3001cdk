@@ -89,7 +89,7 @@ int main(int argc, char *argv[])  {
 	while(42) { //Life, the universe, and everything
 		check_ble_connection();
 		if(device_type == initiator && device_settings.state == measurement) {
-				sit_sstwr_initiator(1, 2);
+				sit_sstwr_initiator();
 		} else if (device_type == responder && device_settings.state == measurement) {
 				sit_responder();
 		}

@@ -36,11 +36,18 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(SIT_CONFIG, LOG_LEVEL_INF);
 
+device_type_t device_type = none;
 
 device_settings_t device_settings = {
-    .deviceID = "A",
+    .deviceID = 0,
+    .initiator = 1,
+    .responder = 0,
+    .tx_ant_dly = 16385,
+    .rx_ant_dly = 16385,
     .state = sleep,
     .diagnostic = false,
+    .min_measurement = 0,
+    .max_measurement = 0,
 };
 
 void set_device_state(char *command) {
@@ -51,4 +58,27 @@ void set_device_state(char *command) {
     } else {
         LOG_ERR("Wrong command");
     }
+}
+
+void set_device_id(uint8_t device_id) {
+    device_settings.deviceID = device_id;
+}
+
+void set_responder(uint8_t responder) {
+    device_settings.responder = responder;
+}
+
+void set_min_measurement(uint8_t measurement) {
+    device_settings.min_measurement = measurement;
+}
+
+void set_max_measurement(uint8_t measurement) {
+    device_settings.max_measurement = measurement;
+}
+
+void set_rx_ant_dly(uint16_t dly) {
+    device_settings.rx_ant_dly = dly;
+}
+void set_tx_ant_dly(uint16_t dly) {
+    device_settings.tx_ant_dly = dly;
 }

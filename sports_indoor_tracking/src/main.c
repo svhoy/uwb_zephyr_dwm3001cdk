@@ -49,18 +49,14 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sit_main, LOG_LEVEL_INF);
 
-device_type device;
-
 void initialization() {
 	uint8_t error = 0;
 
 	sit_led_init();
-	if(device == initiator) {
-		if (sit_ble_init()) {
-			LOG_ERR("Bluetooth init failed");
-		}
-	}
 
+	if (sit_ble_init()) {
+		LOG_ERR("Bluetooth init failed");
+	}
 	// repeat configuration when failed
 	do {
 		error = sit_init();
@@ -88,23 +84,14 @@ int main(int argc, char *argv[])  {
 	printk(APP_NAME);
 	printk("==================\n");
 	init_device_id();
-	char *deviceID;
-	get_device_id(&deviceID);
-	if (memcmp(deviceID, "65C75B3AA44CCFD5", sizeof(deviceID)) == 0) {
-		device = responder;
-	} else if (memcmp(deviceID, "A019663A7E8C055E", sizeof(deviceID)) == 0){
-		device = initiator;
-	}
 
 	initialization();
 	while(42) { //Life, the universe, and everything
-		if(device == initiator) {
-			check_ble_connection();
-			if (device_settings.state == measurement) {
-				sit_sstwr_initiator(1, 2);
-			}
-		} else if (device == responder) {
-			sit_responder();
+		check_ble_connection();
+		if(device_type == initiator && device_settings.state == measurement) {
+				sit_sstwr_initiator();
+		} else if (device_type == responder && device_settings.state == measurement) {
+				sit_responder();
 		}
 		k_msleep(100);
 	}

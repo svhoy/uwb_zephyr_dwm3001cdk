@@ -31,7 +31,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-
 /***************************************************************************
 * Read the systemstatus low register and return the device status
 *

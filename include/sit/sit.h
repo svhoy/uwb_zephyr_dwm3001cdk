@@ -41,7 +41,7 @@
 #include <deca_device_api.h>
 
 #define SPEED_OF_LIGHT 299702547
-
+extern uint32_t measurements;
 /***************************************************************************
 * Initilization for DW3001 -> SPI Connection, DW3000, Antenna Delay  
 *
@@ -54,7 +54,7 @@
 ****************************************************************************/
 uint8_t sit_init();
 
-void sit_sstwr_initiator(uint8_t initiator_node_id, uint8_t responder_node_id);
+void sit_sstwr_initiator();
 
 void sit_responder();
 

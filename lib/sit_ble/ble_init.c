@@ -78,6 +78,9 @@ static struct bt_uuid_128 sit_int_command_uuid = BT_UUID_INIT_128(
 static struct bt_uuid_128 sit_json_command_uuid = BT_UUID_INIT_128(
 	BT_UUID_SIT_JSON_COMMAND_VAL);
 
+static struct bt_uuid_128 sit_json_setup_uuid = BT_UUID_INIT_128(
+	BT_UUID_SIT_JSON_SETUP_VAL);
+
 static ssize_t write_int_comand(
 		struct bt_conn *conn,
 		const struct bt_gatt_attr *attr,
@@ -122,12 +125,61 @@ static ssize_t write_json_comand(
 		LOG_ERR("JSON Parse Error: %d", ret);
 	} else {
 		if (strcmp(command_str.type, "measurement_msg") == 0 ){
-			if(strcmp(command_str.command, "start")) {
+			if(strcmp(command_str.command, "start") == 0) {
 				reset_sequence();
+				set_device_state(command_str.command);
+			} else if(strcmp(command_str.command, "stop") == 0 && device_type == initiator && device_settings.min_measurement != 0 && device_settings.min_measurement > measurements) {
+				set_max_measurement(device_settings.min_measurement);
+			} else { 
+				set_device_state(command_str.command);
 			}
-			set_device_state(command_str.command);
 		} else {
 			LOG_ERR("Command: %s", command_str.type);
+		}
+	}
+	free(value);
+	return len;
+}
+
+static ssize_t write_json_setup(
+		struct bt_conn *conn,
+		const struct bt_gatt_attr *attr,
+		const void *buf,
+		uint16_t len,
+		uint16_t offset,
+		uint8_t flags
+	) {
+	char *value = malloc(len + 1);
+	json_setup_msg_t setup_str;
+
+	memcpy(value, buf, len);
+	value[len+1] = '\0';
+	int ret = json_decode_setup_msg(value, &setup_str);
+	if (ret < 0) {
+		LOG_ERR("JSON Parse Error: %d", ret);
+	} else {
+		set_min_measurement(setup_str.min_measurement);
+		set_max_measurement(setup_str.max_measurement);
+		set_rx_ant_dly(setup_str.rx_ant_dly);
+		set_tx_ant_dly(setup_str.tx_ant_dly);
+		if (strncmp(setup_str.initiator_device, bt_get_name(), 16) == 0 ){
+			LOG_INF("Test Initiator");
+			device_type = initiator;
+			set_device_id(1);
+			set_responder(100 + setup_str.responder - 1);
+		} else {
+			for(uint8_t i=0; i<setup_str.responder; i++) {
+				if (strncmp(setup_str.responder_device, bt_get_name(), 16) == 0 ) {
+					LOG_INF("Test Responder");
+					device_type = responder;
+					set_device_id(100 + i);
+					break;
+				}  else {
+					LOG_ERR("Setup: %s", setup_str.type);
+					device_type = none;
+				}
+			}
+			
 		}
 	}
 	free(value);
@@ -160,6 +212,10 @@ BT_GATT_SERVICE_DEFINE(sit_service,
 			       BT_GATT_CHRC_WRITE,
 			       BT_GATT_PERM_WRITE,
 			       NULL, write_json_comand, NULL),
+	BT_GATT_CHARACTERISTIC(&sit_json_setup_uuid.uuid,
+			       BT_GATT_CHRC_WRITE,
+			       BT_GATT_PERM_WRITE,
+			       NULL, write_json_setup, NULL),
 );
 
 static const struct bt_data ad[] = {
@@ -190,6 +246,8 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	printk("Disconnected (reason 0x%02x)\n", reason);
 	connection_status = false;
+	device_type = none;
+	set_device_state("stop");
 	if (default_conn){
 		bt_conn_unref(default_conn);
 		default_conn = NULL;

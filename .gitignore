@@ -32,6 +32,9 @@ doc/*_doc.log
 ext/lib/bin/supl
 ext/lib/bin/libsupl.zip
 
+#samples 
+samples/zephyr-dw3000-examples/
+
 # python
 .venv
 

@@ -88,11 +88,20 @@ int main(int argc, char *argv[])  {
 	initialization();
 	while(42) { //Life, the universe, and everything
 		check_ble_connection();
-		if(device_type == initiator && device_settings.state == measurement) {
-				sit_sstwr_initiator();
-		} else if (device_type == responder && device_settings.state == measurement) {
-				sit_responder();
+		if (device.device_settings.measurement_type == ss_twr)
+			if(device_type == initiator && device_settings.state == measurement) {
+					sit_sstwr_initiator();
+			} else if (device_type == responder && device_settings.state == measurement) {
+					sit_sstwr_responder();
+			}
+		else if (device.device_settings.measurement_type == ds_3_twr) {
+			if(device_type == initiator && device_settings.state == measurement) {
+					sit_dstwr_initiator();
+			} else if (device_type == responder && device_settings.state == measurement) {
+					sit_dstwr_responder();
+			}
 		}
+		
 		k_msleep(100);
 	}
 	return 0;

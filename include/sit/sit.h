@@ -55,7 +55,9 @@ extern uint32_t measurements;
 uint8_t sit_init();
 
 void sit_sstwr_initiator();
+void sit_sstwr_responder();
 
-void sit_responder();
+void sit_dstwr_initiator(); 
+void sit_dstwr_responder();
 
 void reset_sequence();

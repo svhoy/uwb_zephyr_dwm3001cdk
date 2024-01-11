@@ -59,7 +59,14 @@ extern device_type_t device_type;
 typedef enum {
     measurement,  ///< measurement state will run the distance measurement
     sleep         ///< sleep state, wait for new informations
-} device_state;
+} device_state_t;
+
+typedef enum {
+    ss_twr,
+    ds_3_twr,
+    ds_4_twr, ///< not Implemented yet 
+    ds_all_twr, ///< not Implemnted yet
+} measurement_type_t;
 
 typedef struct {
     uint8_t deviceID;
@@ -69,7 +76,8 @@ typedef struct {
     uint16_t tx_ant_dly;
     uint16_t rx_ant_dly;
     device_type_t device_type;
-    device_state state;
+    device_state_t state;
+    measurement_type_t measurement_type;
     bool diagnostic;
     uint8_t min_measurement;
     uint8_t max_measurement;
@@ -80,7 +88,8 @@ extern device_settings_t device_settings;
 typedef enum {
     twr_1_poll,
     ss_twr_2_resp,
-    dd_twr_2_resp
+    ds_twr_2_resp, 
+    ds_twr_3_final,
 } msg_id_t;
 
 typedef struct {

@@ -181,7 +181,7 @@ void sit_sstwr_initiator() {
 	sequence++;
 }
 
-void sit_responder() {
+void sit_sstwr_responder() {
 	sit_receive_at(0);
     msg_header_t rx_poll_msg;
 	msg_id_t msg_id = twr_1_poll;
@@ -209,6 +209,14 @@ void sit_responder() {
 		LOG_WRN("Something is wrong");
         dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
 	}
+}
+
+void sit_dstwr_initiator() {
+	LOG_INF("Test");
+}
+
+void sit_dstwr_responder() {
+	LOG_INF("Test");
 }
 
 void reset_sequence() {

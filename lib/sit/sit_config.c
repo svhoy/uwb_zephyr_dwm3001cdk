@@ -45,6 +45,7 @@ device_settings_t device_settings = {
     .tx_ant_dly = 16385,
     .rx_ant_dly = 16385,
     .state = sleep,
+    .measurement_type = ss_twr,
     .diagnostic = false,
     .min_measurement = 0,
     .max_measurement = 0,
@@ -74,6 +75,15 @@ void set_min_measurement(uint8_t measurement) {
 
 void set_max_measurement(uint8_t measurement) {
     device_settings.max_measurement = measurement;
+}
+
+void set_measurement_type(char *measurement_state) {
+    if (strcmp(measurement_state, "ss_twr") == 0) {
+        device_settings.measurement_type = ss_twr;
+    } else if (strcmp(measurement_state, "ds_3_twr") == 0) {
+        device_settings.measurement_type = ds_3_twr;
+    }
+    
 }
 
 void set_rx_ant_dly(uint16_t dly) {

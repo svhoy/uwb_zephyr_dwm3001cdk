@@ -79,9 +79,11 @@ bool sit_send_at(uint8_t* msg_data, uint16_t size, uint64_t tx_time);
 ****************************************************************************/
 void sit_receive_at(uint16_t timeout);
 
-bool sit_check_msg_id(msg_id_t id, msg_header_t* message);
+bool sit_check_msg_id(msg_id_t id, msg_simple_t * message);
 
 bool sit_check_final_msg_id(msg_id_t id, msg_ss_twr_final_t* message);
+
+bool sit_check_ds_final_msg_id(msg_id_t id, msg_ds_twr_final_t* message);
 
 void sit_set_rx_tx_delay_rx_timeout(uint32_t delay_us,uint16_t timeout);
 

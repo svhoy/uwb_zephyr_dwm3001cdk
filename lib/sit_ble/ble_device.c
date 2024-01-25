@@ -21,7 +21,7 @@ LOG_MODULE_REGISTER(ble_device);
 
 uint8_t ble_set_device_name(const char * name)
 {
-    int err;
+    int err = 0;
 
     bt_set_name(name);
     if(err < 0) {

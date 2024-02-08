@@ -127,6 +127,7 @@ typedef struct {
 
 typedef struct {
     char state[15];
+    uint8_t responder;
     uint32_t sequence;
     uint32_t measurements;
     float distance;
@@ -144,12 +145,24 @@ extern dwt_config_t sit_device_config;
 
 /* Delay between frames, in UWB microseconds. */
 // #define POLL_TX_TO_RESP_RX_DLY_UUS 250 // 240 * 1,026us ->
-#define POLL_TX_TO_RESP_RX_DLY_UUS 300 // 240 * 1,026us ->
+#define POLL_TX_TO_RESP_RX_DLY_UUS 500 // 240 * 1,026us ->
 /* Delay between frames, in UWB microseconds. */
-#define POLL_RX_TO_RESP_TX_DLY_UUS 1000 // 650 * 1,026us ->
+#define POLL_RX_TO_RESP_TX_DLY_UUS 1250 // 650 * 1,026us ->
 #define RESP_TX_TO_FINAL_RX_DLY_UUS 500 // 650 * 1,026us ->
 /* Receive response timeout. */
-#define RESP_RX_TIMEOUT_UUS 10000 // 400 * 1,026us -> 
+#define RESP_RX_TIMEOUT_UUS 1500 // 400 * 1,026us -> 
+
+
+#define CPU_PROCESSING_TIME 400
+#define DS_POLL_TX_TO_RESP_RX_DLY_UUS (750 + CPU_PROCESSING_TIME)
+#define DS_RESP_RX_TO_FINAL_TX_DLY_UUS (1000 + CPU_PROCESSING_TIME)
+#define DS_RESP_RX_TIMEOUT_UUS 1200
+#define DS_PRE_TIMEOUT 5
+
+#define DS_POLL_RX_TO_RESP_TX_DLY_UUS 1350
+#define DS_RESP_TX_TO_FINAL_RX_DLY_UUS 1200
+#define DS_FINAL_RX_TIMEOUT 1800
+
 
 /**
  *  UWB microsecond (uus) to device time unit (dtu, around 15.65 ps) conversion factor.

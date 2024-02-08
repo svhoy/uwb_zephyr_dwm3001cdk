@@ -6,7 +6,7 @@ set(DTS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 set(BOARD qorvo_dwm3001cdk)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(sit_twr_responder_example)
+project(sit_ds-twr_responder_example)
 
 # the binary only library from Qorvo has problems with -Os or -O2
 zephyr_library_compile_options(-O1)

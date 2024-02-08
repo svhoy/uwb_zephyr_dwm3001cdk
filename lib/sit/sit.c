@@ -62,10 +62,10 @@ json_distance_msg_t distance_notify = {
 		.state = "running",
 		.sequence = 0,
 		.measurements = 0,
-		.distance = 0,
+		.distance = 0.0,
 		.nlos_percent = 0,
-		.rssi_index_resp = 0,
-		.fp_index_resp = 0
+		.rssi_index_resp = 0.0,
+		.fp_index_resp = 0.0
 	}
 };
 /**
@@ -100,11 +100,14 @@ void reset_sequence() {
 	measurements = 0;
 }
 
-void send_notify() {
-	if (distance >= 0) {
+void send_notify(uint8_t responder) {
+	LOG_INF("Test Notify");
+	if (distance >= 0.0) {
+		LOG_INF("Test Notify 2");
 		measurements++;
 		distance_notify.data.distance = distance;
 		distance_notify.data.sequence = sequence;
+		distance_notify.data.responder = responder;
 		distance_notify.data.measurements = measurements;
 		distance_notify.data.nlos_percent = diagnostic.nlos;
 		distance_notify.data.rssi_index_resp = diagnostic.rssi;
@@ -120,183 +123,197 @@ void send_notify() {
 
 
 void sit_sstwr_initiator() {
-	sit_set_rx_tx_delay_rx_timeout(POLL_TX_TO_RESP_RX_DLY_UUS, RESP_RX_TIMEOUT_UUS);
-	for(uint8_t responder_id=100; responder_id<=device_settings.responder; responder_id++) {
-		msg_simple_t twr_poll = {twr_1_poll, (uint8_t)sequence, device_settings.deviceID, responder_id, 0};
-		sit_start_poll((uint8_t*) &twr_poll, (uint16_t)sizeof(twr_poll));
+	while(device_settings.state == measurement) {
+		sit_set_rx_tx_delay_and_rx_timeout(POLL_TX_TO_RESP_RX_DLY_UUS, RESP_RX_TIMEOUT_UUS);
+		for(uint8_t responder_id=100; responder_id<=device_settings.responder; responder_id++) {
+			msg_simple_t twr_poll = {twr_1_poll, (uint8_t)sequence, device_settings.deviceID, responder_id, 0};
+			sit_start_poll((uint8_t*) &twr_poll, (uint16_t)sizeof(twr_poll));
 
-		msg_ss_twr_final_t rx_final_msg;
-		msg_id_t msg_id = ss_twr_2_resp;
-		if(sit_check_final_msg_id(msg_id, &rx_final_msg)) {
-			uint64_t poll_tx_ts = get_tx_timestamp_u64();
-			uint64_t resp_rx_ts = get_rx_timestamp_u64();
-			
-			uint64_t poll_rx_ts = rx_final_msg.poll_rx_ts;
-			uint64_t resp_tx_ts = rx_final_msg.resp_tx_ts;
+			msg_ss_twr_final_t rx_final_msg;
+			msg_id_t msg_id = ss_twr_2_resp;
+			if(sit_check_final_msg_id(msg_id, &rx_final_msg)) {
+				uint64_t poll_tx_ts = get_tx_timestamp_u64();
+				uint64_t resp_rx_ts = get_rx_timestamp_u64();
+				
+				uint64_t poll_rx_ts = rx_final_msg.poll_rx_ts;
+				uint64_t resp_tx_ts = rx_final_msg.resp_tx_ts;
 
-			float clockOffsetRatio = dwt_readcarrierintegrator() * 
-					(FREQ_OFFSET_MULTIPLIER * HERTZ_TO_PPM_MULTIPLIER_CHAN_9 / 1.0e6) ;
+				float clockOffsetRatio = dwt_readcarrierintegrator() * 
+						(FREQ_OFFSET_MULTIPLIER * HERTZ_TO_PPM_MULTIPLIER_CHAN_9 / 1.0e6) ;
 
-			uint64_t rtd_init = resp_rx_ts - poll_tx_ts;
-			uint64_t rtd_resp = resp_tx_ts - poll_rx_ts;
+				uint64_t rtd_init = resp_rx_ts - poll_tx_ts;
+				uint64_t rtd_resp = resp_tx_ts - poll_rx_ts;
 
-			float tof =  ((rtd_init - rtd_resp * 
-					(1 - clockOffsetRatio)) / 2.0) * DWT_TIME_UNITS;
-			
-			distance = tof * SPEED_OF_LIGHT;
+				float tof =  ((rtd_init - rtd_resp * 
+						(1 - clockOffsetRatio)) / 2.0) * DWT_TIME_UNITS;
+				
+				distance = tof * SPEED_OF_LIGHT;
 
-			LOG_INF("TX Power: 0x%08x", (int32_t) 0xfe);
-			LOG_INF("initiator -> responder Distance: %3.2lf \n", distance);
-			send_notify(distance);
-		} else {
-			LOG_WRN("Something is wrong");
-			dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
+				LOG_INF("TX Power: 0x%08x", (int32_t) 0xfe);
+				LOG_INF("initiator -> responder Distance: %3.2lf \n", distance);
+				send_notify(responder_id);
+			} else {
+				LOG_WRN("Something is wrong");
+				dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
+			}
 		}
+		sequence++;
+		k_msleep(100);
 	}
-	sequence++;
 }
 
 void sit_sstwr_responder() {
-	sit_receive_at(0);
-	msg_simple_t rx_poll_msg;
-	msg_id_t msg_id = twr_1_poll;
-	if(sit_check_msg_id(msg_id, &rx_poll_msg)){
-		uint64_t poll_rx_ts = get_rx_timestamp_u64();
-		
-		uint32_t resp_tx_time = (poll_rx_ts + (POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
-
-		uint16_t tx_dly = get_rx_ant_dly();
-
-		uint32_t resp_tx_ts = (((uint64_t)(resp_tx_time & 0xFFFFFFFEUL)) << 8) + tx_dly;
-		
-		msg_ss_twr_final_t msg_ss_twr_final_t = {
-				ss_twr_2_resp,
-				(uint8_t)(rx_poll_msg.header.sequence),
-				device_settings.deviceID, 
-				rx_poll_msg.header.source,
-				(uint32_t)poll_rx_ts, 
-				resp_tx_ts,
-				0
-			};
-		sit_send_at((uint8_t*)&msg_ss_twr_final_t, sizeof(msg_ss_twr_final_t), resp_tx_time);
-
-	} else {
-		LOG_WRN("Something is wrong");
-		dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
-	}
-}
-
-// void sit_sstwr_initiator() {
-// 	while(device_settings.state == measurement) {
-// 		LOG_INF("test");
-// 		k_msleep(100);
-// 	}
-// }
-
-// void sit_sstwr_responder() {
-// 	while(device_settings.state == measurement) {
-// 		LOG_INF("test");
-// 		k_msleep(100);
-// 	}
-// }
-
-void sit_dstwr_initiator() {
-	sit_set_rx_tx_delay_rx_timeout(POLL_TX_TO_RESP_RX_DLY_UUS, RESP_RX_TIMEOUT_UUS);
-	for(uint8_t responder_id=100; responder_id<=device_settings.responder; responder_id++) {
-		msg_simple_t twr_poll = {twr_1_poll, (uint8_t)sequence, device_settings.deviceID, responder_id, 0};
-		sit_start_poll((uint8_t*) &twr_poll, (uint16_t)sizeof(twr_poll));
-
-		msg_simple_t ds_twr_resp;
-		msg_id_t msg_id = ds_twr_2_resp;
-		if(sit_check_msg_id(msg_id, &ds_twr_resp) && ds_twr_resp.header.dest == device_settings.deviceID) {
-			uint64_t poll_tx_ts = get_tx_timestamp_u64();
-			uint64_t resp_rx_ts = get_rx_timestamp_u64();
-	
-			uint32_t final_msg_tx_time = (resp_rx_ts + (POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
+	while(device_settings.state == measurement) {
+		sit_receive_at(0);
+		msg_simple_t rx_poll_msg;
+		msg_id_t msg_id = twr_1_poll;
+		if(sit_check_msg_id(msg_id, &rx_poll_msg)){
+			uint64_t poll_rx_ts = get_rx_timestamp_u64();
+			
+			uint32_t resp_tx_time = (poll_rx_ts + (POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
 
 			uint16_t tx_dly = get_rx_ant_dly();
 
-			uint32_t final_msg_tx_ts = (((uint64_t)(final_msg_tx_time & 0xFFFFFFFEUL)) << 8) + tx_dly;
+			uint32_t resp_tx_ts = (((uint64_t)(resp_tx_time & 0xFFFFFFFEUL)) << 8) + tx_dly;
 			
-			msg_ds_twr_final_t msg_ds_twr_final_t = {
+			msg_ss_twr_final_t msg_ss_twr_final_t = {
 					ss_twr_2_resp,
-					(uint8_t)(ds_twr_resp.header.sequence),
+					(uint8_t)(rx_poll_msg.header.sequence),
 					device_settings.deviceID, 
-					ds_twr_resp.header.source,
-					(uint32_t)poll_tx_ts, 
-					(uint32_t)resp_rx_ts,
-					final_msg_tx_ts,
+					rx_poll_msg.header.source,
+					(uint32_t)poll_rx_ts, 
+					resp_tx_ts,
 					0
 				};
-
-			sit_send_at((uint8_t*)&msg_ds_twr_final_t, sizeof(msg_ds_twr_final_t), final_msg_tx_time);
+			sit_send_at((uint8_t*)&msg_ss_twr_final_t, sizeof(msg_ss_twr_final_t), resp_tx_time);
 
 		} else {
 			LOG_WRN("Something is wrong");
 			dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
 		}
+		k_msleep(90);
 	}
-	sequence++;
+}
+
+void sit_dstwr_initiator() {
+	while(device_settings.state == measurement) {
+		for(uint8_t responder_id=100; responder_id<=device_settings.responder; responder_id++) {
+			sit_set_rx_after_tx_delay(DS_POLL_TX_TO_RESP_RX_DLY_UUS);
+			sit_set_rx_timeout(DS_RESP_RX_TIMEOUT_UUS);
+			sit_set_preamble_detection_timeout(DS_PRE_TIMEOUT);
+
+			msg_simple_t twr_poll = {twr_1_poll, sequence, device_settings.deviceID , responder_id,0};
+			sit_start_poll((uint8_t*) &twr_poll, (uint16_t)sizeof(twr_poll));
+
+			msg_simple_t rx_resp_msg;
+			msg_id_t msg_id = ds_twr_2_resp;
+
+			if(sit_check_msg_id(msg_id, &rx_resp_msg)) {
+				uint64_t poll_tx_ts = get_tx_timestamp_u64();
+				uint64_t resp_rx_ts = get_rx_timestamp_u64();
+				
+				uint32_t final_tx_time = (resp_rx_ts + (DS_RESP_RX_TO_FINAL_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
+				uint64_t final_tx_ts = (((uint64_t)(final_tx_time & 0xFFFFFFFEUL)) << 8) + get_tx_ant_dly();
+
+				msg_ds_twr_final_t final_msg = {
+					ds_twr_3_final,
+					rx_resp_msg.header.sequence,
+					rx_resp_msg.header.dest,
+					rx_resp_msg.header.source,
+					(uint32_t)poll_tx_ts,
+					(uint32_t)resp_rx_ts,
+					(uint32_t)final_tx_ts,
+					0
+				};
+
+				bool ret = sit_send_at((uint8_t*)&final_msg, sizeof(msg_ds_twr_final_t),final_tx_time);
+
+				if (ret == false) {
+					LOG_WRN("Something is wrong with Sending Final Msg");
+					continue;
+				}
+			} else {
+				LOG_WRN("Something is wrong with Receiving Msg");
+				dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
+			}
+		}
+		sequence++;
+		k_msleep(100);
+	}
 }
 
 void sit_dstwr_responder() {
-	LOG_INF("Test1");
-	sit_receive_at(0);
-	msg_simple_t rx_poll_msg;
-	msg_id_t msg_id = twr_1_poll;
-	if(sit_check_msg_id(msg_id, &rx_poll_msg) && rx_poll_msg.header.dest == device_settings.deviceID){
-		LOG_INF("Test3");
-		uint64_t poll_rx_ts = get_rx_timestamp_u64();
-		
-		uint32_t resp_tx_time = (poll_rx_ts + (POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
-		uint16_t tx_dly = get_rx_ant_dly();
-		
-		msg_simple_t tx_resp_msg = {
-			ds_twr_2_resp, 
-			rx_poll_msg.header.sequence, 
-			device_settings.deviceID, 
-			rx_poll_msg.header.source, 
-			0
-		};
-		sit_set_rx_tx_delay_rx_timeout(RESP_TX_TO_FINAL_RX_DLY_UUS, 10000);
-		sit_send_at((uint8_t*)&tx_resp_msg, sizeof(msg_simple_t), resp_tx_time);
-		msg_id = ds_twr_3_final;
-		msg_ds_twr_final_t final_msg;
-		if(sit_check_ds_final_msg_id(msg_id, &final_msg) && final_msg.header.dest == device_settings.deviceID){
-			uint64_t resp_tx_ts = get_tx_timestamp_u64();
-			uint64_t final_rx_ts = get_rx_timestamp_u64();
+	while(device_settings.state == measurement) { 
+		LOG_INF("Test1");
+		sit_receive_now();
+		msg_simple_t rx_poll_msg;
+		msg_id_t msg_id = twr_1_poll;
+		if(sit_check_msg_id(msg_id, &rx_poll_msg) && rx_poll_msg.header.dest == device_settings.deviceID){
+			LOG_INF("Test3");
+			uint64_t poll_rx_ts = get_rx_timestamp_u64();
+				
+			uint32_t resp_tx_time = (poll_rx_ts + (DS_POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
+			
+			msg_simple_t msg_ds_poll_resp = {
+					ds_twr_2_resp,
+					rx_poll_msg.header.sequence,
+					rx_poll_msg.header.dest,
+					rx_poll_msg.header.source,
+					0
+				};
+			sit_set_rx_after_tx_delay(DS_RESP_TX_TO_FINAL_RX_DLY_UUS);
+			sit_set_rx_timeout(DS_FINAL_RX_TIMEOUT);
+			sit_set_preamble_detection_timeout(DS_PRE_TIMEOUT);
+			bool ret = sit_send_at_with_response((uint8_t*)&msg_ds_poll_resp, sizeof(msg_simple_t), resp_tx_time);
+			if (ret == false) {
+				continue;
+				LOG_WRN("Something is wrong with Sending Poll Resp Msg");
+				k_msleep(90);
+			}
+			msg_ds_twr_final_t rx_ds_final_msg;
+			msg_id = ds_twr_3_final;
+			if(sit_check_ds_final_msg_id(msg_id, &rx_ds_final_msg) && rx_ds_final_msg.header.dest == device_settings.deviceID){
+				uint64_t resp_tx_ts = get_tx_timestamp_u64();
+				uint64_t final_rx_ts = get_rx_timestamp_u64();
 
-			// Berechnung der Umlaufzeiten für Umlauf 1 und 2
-			float init_round_one = (float)(final_msg.resp_rx_ts - final_msg.poll_tx_ts);
-			float responder_round_one = (float)(resp_tx_ts - poll_rx_ts); 
-			float init_round_two = (float)(final_rx_ts - resp_tx_ts);
-			float responder_round_two = (float)(final_msg.final_tx_ts - final_msg.resp_rx_ts);
-			float tof_deviceTime = (init_round_one * init_round_two 
-										- responder_round_one * responder_round_two
-									)/(
-										init_round_one 
-										+ init_round_two 
-										+ responder_round_one 
-										+ responder_round_two
-									);
+				uint32_t poll_tx_ts = rx_ds_final_msg.poll_tx_ts;
+				uint32_t resp_rx_ts = rx_ds_final_msg.resp_rx_ts;
+				uint32_t final_tx_ts = rx_ds_final_msg.final_tx_ts;
 
-			float clockOffsetRatio = dwt_readcarrierintegrator() * 
-				(FREQ_OFFSET_MULTIPLIER * HERTZ_TO_PPM_MULTIPLIER_CHAN_9 / 1.0e6) ;
-			float tof =  ((tof_deviceTime * 
-				(1 - clockOffsetRatio)) / 2.0) * DWT_TIME_UNITS;
+				uint32_t poll_rx_ts_32, resp_tx_ts_32, final_rx_ts_32;
+				poll_rx_ts_32 = (uint32_t) poll_rx_ts;
+				resp_tx_ts_32 = (uint32_t) resp_tx_ts;
+				final_rx_ts_32 = (uint32_t) final_rx_ts;
 
-			distance = tof * SPEED_OF_LIGHT;
-			send_notify();
+				double Ra, Rb, Da, Db;
+				int64_t tof_dtu;
+				Ra = (double)(resp_rx_ts - poll_tx_ts);
+				Rb = (double)(final_rx_ts_32 - resp_tx_ts_32);
+				Da = (double)(final_tx_ts - resp_rx_ts);
+				Db = (double)(resp_tx_ts_32 - poll_rx_ts_32);
+				tof_dtu = (int64_t)((Ra * Rb - Da * Db) / (Ra + Rb + Da + Db));
+
+				float tof = (float)tof_dtu * DWT_TIME_UNITS;
+				distance = tof * SPEED_OF_LIGHT;
+				LOG_INF("Distance: %lf", distance);
+				sequence = rx_ds_final_msg.sequence;
+				send_notify(device_settings.deviceID);
+			} else {
+                LOG_WRN("Something is wrong with Final Msg Receive");
+                dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
+            }
+
+		} else {
+			LOG_WRN("Something is wrong with Poll Msg Receive");
+            dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
 		}
+		k_msleep(90);
 	}
 }
 
 
-
-
-
 uint8_t sit_init() {
-	
+	LOG_INF("Test");
 	device_init();
 	/* Configure SPI rate, for initialize it should not faster than 7 MHz */
 	port_set_dw_ic_spi_slowrate();
@@ -343,6 +360,8 @@ uint8_t sit_init() {
 
 	/* Enable Diacnostic all */
 	dwt_configciadiag(DW_CIA_DIAG_LOG_ALL);
+	LOG_INF("Test End");
+ 	k_msleep(100);
 
 	return 1;
 }
@@ -351,22 +370,18 @@ void sit_run_forever(){
 	ble_start_connection();
 	while(42) { //Life, the universe, and everything
 		if(is_connected()){
-			while(device_settings.state == measurement) {
-				if (device_settings.measurement_type == ss_twr && device_type == initiator) {
-						sit_sstwr_initiator();
-				} else if (device_settings.measurement_type == ss_twr && device_type == responder) {
-						sit_sstwr_responder();
-				} else if (device_settings.measurement_type == ds_3_twr && device_type == initiator) {
-						sit_dstwr_initiator();
-				} else if (device_settings.measurement_type == ds_3_twr && device_type == responder) {
-						sit_dstwr_responder();
-				}
-				k_msleep(100);
+			if (device_settings.measurement_type == ss_twr && device_type == initiator) {
+					sit_sstwr_initiator();
+			} else if (device_settings.measurement_type == ss_twr && device_type == responder) {
+					sit_sstwr_responder();
+			} else if (device_settings.measurement_type == ds_3_twr && device_type == initiator) {
+					sit_dstwr_initiator();
+			} else if (device_settings.measurement_type == ds_3_twr && device_type == responder) {
+					sit_dstwr_responder();
 			}
 		} else {
 			ble_wait_for_connection();
 		}
-		LOG_INF("Test run forever");
 		k_msleep(100);
 	}
 }

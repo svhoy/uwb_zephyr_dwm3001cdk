@@ -70,15 +70,15 @@ void sit_start_poll(uint8_t* msg_data, uint16_t msg_size){
 	dwt_starttx(DWT_START_TX_IMMEDIATE | DWT_RESPONSE_EXPECTED);//switch to rx after `setrxaftertxdelay`
 }
 
-bool sit_send_at(uint8_t* msg_data, uint16_t size, uint64_t tx_time){
+bool sit_send_at(uint8_t* msg_data, uint16_t size, uint32_t tx_time){
 	dwt_setdelayedtrxtime(tx_time);
 	dwt_writetxdata(size, msg_data, 0); 
 	dwt_writetxfctrl(size, 0, 1); 
-	uint8_t late = dwt_starttx(DWT_START_TX_DELAYED);
-	if(late == DWT_SUCCESS) {
+	uint8_t ret = dwt_starttx(DWT_START_TX_DELAYED);
+	if(ret == DWT_SUCCESS) {
 		waitforsysstatus(&status_reg, NULL, DWT_INT_TXFRS_BIT_MASK, 0);
 		dwt_writesysstatuslo(DWT_INT_RXFCG_BIT_MASK); // write to clear send status bit
-		LOG_DBG("Send Success");
+		LOG_INF("Send Success");
 		return true;
 	} else {
 		recover_tx_errors();
@@ -88,27 +88,52 @@ bool sit_send_at(uint8_t* msg_data, uint16_t size, uint64_t tx_time){
 	}
 }
 
-void sit_receive_at(uint16_t timeout) {
-	dwt_setrxtimeout(timeout); // 0 : disable timeout
-	dwt_rxenable(DWT_START_RX_IMMEDIATE); //DWT_START_RX_DELAYED only used with dwt_setdelayedtrxtime() before 
+bool sit_send_at_with_response(uint8_t* msg_data, uint16_t size, uint32_t tx_time){
+	dwt_setdelayedtrxtime(tx_time);
+	dwt_writetxdata(size, msg_data, 0); 
+	dwt_writetxfctrl(size, 0, 1); 
+	uint8_t ret = dwt_starttx(DWT_START_TX_DELAYED | DWT_RESPONSE_EXPECTED);
+	if(ret == DWT_SUCCESS) {
+		waitforsysstatus(&status_reg, NULL, DWT_INT_TXFRS_BIT_MASK, 0);
+		dwt_writesysstatuslo(DWT_INT_RXFCG_BIT_MASK); // write to clear send status bit
+		LOG_INF("Send Success");
+		return true;
+	} else {
+		recover_tx_errors();
+		status_reg = dwt_readsysstatuslo();
+		LOG_WRN("sit_sendAt() - dwt_starttx() late");
+		return false;
+	}
 }
 
-bool sit_check_msg(uint8_t* data, uint16_t expected_size) {
+void sit_receive_now() {
+	dwt_setpreambledetecttimeout(0);
+	dwt_setrxtimeout(0);
+	dwt_rxenable(DWT_START_RX_IMMEDIATE);
+}
+
+void sit_receive_at(uint16_t timeout) {
+	dwt_setpreambledetecttimeout(0);
+	dwt_setrxtimeout(timeout); // 0 : disable timeout
+	dwt_rxenable(DWT_START_RX_DELAYED); //DWT_START_RX_DELAYED only used with dwt_setdelayedtrxtime() before 
+}
+
+bool sit_check_msg(uint8_t* data, uint16_t expected_frame_length) {
 	bool result = false;
 	status_reg = sit_msg_receive();
 	LOG_INF("Test: %08x & %08x", status_reg, DWT_INT_RXFCG_BIT_MASK);
 	if(status_reg & DWT_INT_RXFCG_BIT_MASK) {
 		/* Clear good RX frame event in the DW IC status register. */
 		dwt_writesysstatuslo(DWT_INT_RXFCG_BIT_MASK);
-		uint16_t size = dwt_getframelength();
-		if (size == expected_size) {
-			dwt_readrxdata(data, size, 0);
+		uint16_t frame_length = dwt_getframelength();
+		if (frame_length == expected_frame_length) {
+			dwt_readrxdata(data, frame_length, 0);
 			#ifdef CONFIG_SIT_DIAGNOSTIC
 				get_diagnostic(&diagnostic);
 			#endif
 			result = true;
 		} else {
-			LOG_ERR("rx size %u != expected_size %u",size,expected_size);
+			LOG_ERR("RX Frame Length: %u != Expected Frame Length: %u",frame_length,expected_frame_length);
 		}
 	} else {
 		dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
@@ -129,10 +154,10 @@ bool sit_check_msg_id(msg_id_t id, msg_simple_t* message) {
 		if(message->header.id == id) {
 			result = true;
 		} else {
-			LOG_ERR("sit_checkReceivedId() mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
+			LOG_ERR("Simple MSG mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
 		}
 	} else {
-		LOG_ERR("sit_checkReceivedId(%d, %d) fail",(uint8_t)id, (uint8_t)message->header.id);
+		LOG_ERR("SIT Failed Receive Simple MSG (%u, header) fail",(uint8_t)id);
 	}
 	return result;
 }
@@ -165,9 +190,21 @@ bool sit_check_ds_final_msg_id(msg_id_t id, msg_ds_twr_final_t* message) {
 	return result;
 }
 
-void sit_set_rx_tx_delay_rx_timeout(uint32_t delay_us, uint16_t timeout) {
+void sit_set_rx_tx_delay_and_rx_timeout(uint32_t delay_us, uint16_t timeout) {
 	dwt_setrxaftertxdelay(delay_us);
 	dwt_setrxtimeout(timeout);
+}
+
+void sit_set_rx_after_tx_delay(uint32_t delay_us) {
+	dwt_setrxaftertxdelay(delay_us);
+}
+
+void sit_set_rx_timeout(uint16_t timeout) {
+	dwt_setrxtimeout(timeout);
+}
+
+void sit_set_preamble_detection_timeout(uint16_t timeout) {
+	dwt_setpreambledetecttimeout(timeout);
 }
 
 void recover_tx_errors() {

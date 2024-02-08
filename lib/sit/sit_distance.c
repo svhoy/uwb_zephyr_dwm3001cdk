@@ -122,10 +122,10 @@ bool sit_check_msg(uint8_t* data, uint16_t expected_size) {
 	return result;
 }
 
-bool sit_check_msg_id(msg_id_t id, msg_header_t* message) {
+bool sit_check_msg_id(msg_id_t id, msg_simple_t* message) {
 	
 	bool result = false;
-	if(sit_check_msg((uint8_t*)message, sizeof(msg_header_t))){
+	if(sit_check_msg((uint8_t*)message, sizeof(msg_simple_t))){
 		if(message->header.id == id) {
 			result = true;
 		} else {
@@ -140,6 +140,20 @@ bool sit_check_msg_id(msg_id_t id, msg_header_t* message) {
 bool sit_check_final_msg_id(msg_id_t id, msg_ss_twr_final_t* message) {
 	bool result = false;
 	if(sit_check_msg((uint8_t*)message, sizeof(msg_ss_twr_final_t))){
+		if(message->header.id == id) {
+			result = true;
+		} else {
+			LOG_ERR("sit_checkReceivedIdFinalMsg() mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
+		}
+	} else {
+		LOG_ERR("sit_checkReceivedIdFinalMsg(%u,header) fail",(uint8_t)id);
+	}
+	return result;
+}
+
+bool sit_check_ds_final_msg_id(msg_id_t id, msg_ds_twr_final_t* message) {
+	bool result = false;
+	if(sit_check_msg((uint8_t*)message, sizeof(msg_ds_twr_final_t))){
 		if(message->header.id == id) {
 			result = true;
 		} else {

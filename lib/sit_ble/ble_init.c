@@ -126,6 +126,7 @@ static ssize_t write_json_comand(
 	} else {
 		if (strcmp(command_str.type, "measurement_msg") == 0 ){
 			if(strcmp(command_str.command, "start") == 0) {
+				LOG_INF("Abbruch Start");
 				reset_sequence();
 				set_device_state(command_str.command);
 			} else if(strcmp(command_str.command, "stop") == 0 && device_type == initiator && device_settings.min_measurement != 0 && device_settings.min_measurement > measurements) {
@@ -265,8 +266,6 @@ static struct bt_conn_cb conn_callbacks = {
 
 static void bt_ready(void)
 {
-	int err;
-
 	LOG_INF("Bluetooth initialized\n");
 	char *deviceID;
 	get_device_id(&deviceID);
@@ -317,10 +316,6 @@ static struct bt_conn_auth_cb auth_cb_display = {
 	.cancel = auth_cancel,
 };
 
-void ble_sit_notify(json_distance_msg_t *json_data, size_t data_len) {
-	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
-}
-
 void bas_notify(void) {
 	uint8_t battery_level = bt_bas_get_battery_level();
 	battery_level--;
@@ -329,6 +324,13 @@ void bas_notify(void) {
 		battery_level = 100U;
 	}
 	bt_bas_set_battery_level(battery_level);
+}
+
+
+
+
+void ble_sit_notify(json_distance_msg_t *json_data, size_t data_len) {
+	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
 }
 
 uint8_t sit_ble_init(void){

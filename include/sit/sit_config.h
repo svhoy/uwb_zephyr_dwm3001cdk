@@ -59,7 +59,14 @@ extern device_type_t device_type;
 typedef enum {
     measurement,  ///< measurement state will run the distance measurement
     sleep         ///< sleep state, wait for new informations
-} device_state;
+} device_state_t;
+
+typedef enum {
+    ss_twr,
+    ds_3_twr,
+    ds_4_twr, ///< not Implemented yet 
+    ds_all_twr, ///< not Implemnted yet
+} measurement_type_t;
 
 typedef struct {
     uint8_t deviceID;
@@ -69,7 +76,8 @@ typedef struct {
     uint16_t tx_ant_dly;
     uint16_t rx_ant_dly;
     device_type_t device_type;
-    device_state state;
+    device_state_t state;
+    measurement_type_t measurement_type;
     bool diagnostic;
     uint8_t min_measurement;
     uint8_t max_measurement;
@@ -80,7 +88,8 @@ extern device_settings_t device_settings;
 typedef enum {
     twr_1_poll,
     ss_twr_2_resp,
-    dd_twr_2_resp
+    ds_twr_2_resp, 
+    ds_twr_3_final,
 } msg_id_t;
 
 typedef struct {
@@ -93,7 +102,7 @@ typedef struct {
 typedef struct {
     header_t header;
     uint16_t crc;
-} msg_header_t;
+} msg_simple_t;
 
 typedef struct {
     uint8_t nlos; // NLOS percentage
@@ -131,30 +140,16 @@ typedef struct  {
     json_data_t data;
 } json_distance_msg_t; 
 
-
-static dwt_config_t sit_device_config = {
-    9,                /* Channel number. */
-    DWT_PLEN_128,     /* Preamble length. Used in TX only. */
-    DWT_PAC8,         /* Preamble acquisition chunk size. Used in RX only. */
-    9,                /* TX preamble code. Used in TX only. */
-    9,                /* RX preamble code. Used in RX only. */
-    DWT_SFD_DW_8,     /* 0 to use standard 8 symbol SFD, 1 to use non-standard 8 symbol, 2 for non-standard 16 symbol SFD and 3 for 4z 8 symbol SDF type */
-    DWT_BR_6M8,       /* Data rate. */
-    DWT_PHRMODE_STD,  /* PHY header mode. */
-    DWT_PHRRATE_STD,  /* PHY header rate. */
-    (129 + 8 - 8),    /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
-    DWT_STS_MODE_OFF,   /* STS disabled */
-    DWT_STS_LEN_64,   /* STS length see allowed values in Enum dwt_sts_lengths_e */
-    DWT_PDOA_M0       /* PDOA mode off */
-};
+extern dwt_config_t sit_device_config;
 
 /* Delay between frames, in UWB microseconds. */
 // #define POLL_TX_TO_RESP_RX_DLY_UUS 250 // 240 * 1,026us ->
-#define POLL_TX_TO_RESP_RX_DLY_UUS 240 // 240 * 1,026us ->
+#define POLL_TX_TO_RESP_RX_DLY_UUS 300 // 240 * 1,026us ->
 /* Delay between frames, in UWB microseconds. */
-#define POLL_RX_TO_RESP_TX_DLY_UUS 1200 // 650 * 1,026us ->
+#define POLL_RX_TO_RESP_TX_DLY_UUS 1000 // 650 * 1,026us ->
+#define RESP_TX_TO_FINAL_RX_DLY_UUS 500 // 650 * 1,026us ->
 /* Receive response timeout. */
-#define RESP_RX_TIMEOUT_UUS 1200 // 400 * 1,026us -> 
+#define RESP_RX_TIMEOUT_UUS 10000 // 400 * 1,026us -> 
 
 /**
  *  UWB microsecond (uus) to device time unit (dtu, around 15.65 ps) conversion factor.

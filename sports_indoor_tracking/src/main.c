@@ -35,7 +35,6 @@
 #include <sit/sit_device.h>
 #include <sit/sit_config.h>
 #include <sit_led/sit_led.h>
-#include <sit_json/sit_json.h>
 
 #include <sit_ble/ble_init.h>
 #include <sit_ble/ble_device.h>
@@ -65,35 +64,12 @@ void initialization() {
 	LOG_INF("Init Fertig ");
 }
 
-void start_ble_connection() {
-	ble_start_advertising();
-	while(!is_connected()) {
-		sit_toggle_led(3);
-		k_msleep(500);
-	}
-}
-
-void check_ble_connection() {
-	if(!is_connected()) {
-		start_ble_connection();
-		sit_set_led(3, 1);
-	}
-}
-
 int main(int argc, char *argv[])  {
 	printk(APP_NAME);
 	printk("==================\n");
 	init_device_id();
 
 	initialization();
-	while(42) { //Life, the universe, and everything
-		check_ble_connection();
-		if(device_type == initiator && device_settings.state == measurement) {
-				sit_sstwr_initiator();
-		} else if (device_type == responder && device_settings.state == measurement) {
-				sit_responder();
-		}
-		k_msleep(100);
-	}
+	sit_run_forever();
 	return 0;
 }

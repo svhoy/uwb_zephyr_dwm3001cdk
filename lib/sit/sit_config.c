@@ -45,9 +45,26 @@ device_settings_t device_settings = {
     .tx_ant_dly = 16385,
     .rx_ant_dly = 16385,
     .state = sleep,
+    .measurement_type = ds_3_twr,
     .diagnostic = false,
     .min_measurement = 0,
     .max_measurement = 0,
+};
+
+dwt_config_t sit_device_config = {
+    9,                /* Channel number. */
+    DWT_PLEN_128,     /* Preamble length. Used in TX only. */
+    DWT_PAC8,         /* Preamble acquisition chunk size. Used in RX only. */
+    9,                /* TX preamble code. Used in TX only. */
+    9,                /* RX preamble code. Used in RX only. */
+    DWT_SFD_DW_8,     /* 0 to use standard 8 symbol SFD, 1 to use non-standard 8 symbol, 2 for non-standard 16 symbol SFD and 3 for 4z 8 symbol SDF type */
+    DWT_BR_6M8,       /* Data rate. */
+    DWT_PHRMODE_STD,  /* PHY header mode. */
+    DWT_PHRRATE_STD,  /* PHY header rate. */
+    (129 + 8 - 8),    /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
+    DWT_STS_MODE_OFF,   /* STS disabled */
+    DWT_STS_LEN_64,   /* STS length see allowed values in Enum dwt_sts_lengths_e */
+    DWT_PDOA_M0       /* PDOA mode off */
 };
 
 void set_device_state(char *command) {
@@ -74,6 +91,15 @@ void set_min_measurement(uint8_t measurement) {
 
 void set_max_measurement(uint8_t measurement) {
     device_settings.max_measurement = measurement;
+}
+
+void set_measurement_type(char *measurement_state) {
+    if (strcmp(measurement_state, "ss_twr") == 0) {
+        device_settings.measurement_type = ss_twr;
+    } else if (strcmp(measurement_state, "ds_3_twr") == 0) {
+        device_settings.measurement_type = ds_3_twr;
+    }
+    
 }
 
 void set_rx_ant_dly(uint16_t dly) {

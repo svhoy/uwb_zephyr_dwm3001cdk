@@ -89,6 +89,7 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
     const cJSON *responder = NULL;
     const cJSON *min_measurement = NULL;
     const cJSON *max_measurement = NULL;
+    const cJSON *measurement_type = NULL;
     const cJSON *rx_ant_dly = NULL;
     const cJSON *tx_ant_dly = NULL;
     cJSON *json_msg = cJSON_Parse(json);
@@ -140,6 +141,14 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
 
     max_measurement = cJSON_GetObjectItemCaseSensitive(json_msg, "max_measurement");
     setup_struct->max_measurement = max_measurement->valueint;
+
+    measurement_type = cJSON_GetObjectItemCaseSensitive(json_msg, "measurement_type");
+    if (cJSON_IsString(measurement_type)) {
+        LOG_INF("Checking Measurement Type \"%s\"\n", measurement_type->valuestring);
+        strcpy(setup_struct->measurement_type, type->valuestring);
+    } else {
+        LOG_ERR("Something wrong");
+    }
 
     rx_ant_dly = cJSON_GetObjectItemCaseSensitive(json_msg, "rx_ant_dly");
     setup_struct->rx_ant_dly = rx_ant_dly->valueint;

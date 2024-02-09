@@ -161,6 +161,7 @@ static ssize_t write_json_setup(
 	} else {
 		set_min_measurement(setup_str.min_measurement);
 		set_max_measurement(setup_str.max_measurement);
+		set_measurement_type(setup_str.measurement_type);
 		set_rx_ant_dly(setup_str.rx_ant_dly);
 		set_tx_ant_dly(setup_str.tx_ant_dly);
 		if (strncmp(setup_str.initiator_device, bt_get_name(), 16) == 0 ){

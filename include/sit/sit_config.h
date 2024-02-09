@@ -175,6 +175,7 @@ void set_device_id(uint8_t device_id);
 void set_responder(uint8_t responder);
 void set_min_measurement(uint8_t measurement);
 void set_max_measurement(uint8_t measurement);
+void set_measurement_type(char *measurement_type);
 void set_rx_ant_dly(uint16_t dly);
 void set_tx_ant_dly(uint16_t dly);
 

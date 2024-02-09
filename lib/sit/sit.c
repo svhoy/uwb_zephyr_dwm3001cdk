@@ -38,7 +38,6 @@
 #include "sit/sit_distance.h"
 #include "sit/sit_utils.h"
 #include <sit_led/sit_led.h>
-#include <sit_ble/ble_init.h>
 
 #include <sit_ble/ble_init.h>
 #include <sit_ble/ble_device.h>
@@ -101,9 +100,7 @@ void reset_sequence() {
 }
 
 void send_notify(uint8_t responder) {
-	LOG_INF("Test Notify");
 	if (distance >= 0.0) {
-		LOG_INF("Test Notify 2");
 		measurements++;
 		distance_notify.data.distance = distance;
 		distance_notify.data.sequence = sequence;
@@ -296,7 +293,7 @@ void sit_dstwr_responder() {
 				float tof = (float)tof_dtu * DWT_TIME_UNITS;
 				distance = tof * SPEED_OF_LIGHT;
 				LOG_INF("Distance: %lf", distance);
-				sequence = rx_ds_final_msg.sequence;
+				sequence = rx_ds_final_msg.header.sequence;
 				send_notify(device_settings.deviceID);
 			} else {
                 LOG_WRN("Something is wrong with Final Msg Receive");

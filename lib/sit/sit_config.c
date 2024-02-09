@@ -93,10 +93,10 @@ void set_max_measurement(uint8_t measurement) {
     device_settings.max_measurement = measurement;
 }
 
-void set_measurement_type(char *measurement_state) {
-    if (strcmp(measurement_state, "ss_twr") == 0) {
+void set_measurement_type(char *measurement_type) {
+    if (strcmp(measurement_type, "ss_twr") == 0) {
         device_settings.measurement_type = ss_twr;
-    } else if (strcmp(measurement_state, "ds_3_twr") == 0) {
+    } else if (strcmp(measurement_type, "ds_3_twr") == 0) {
         device_settings.measurement_type = ds_3_twr;
     }
     

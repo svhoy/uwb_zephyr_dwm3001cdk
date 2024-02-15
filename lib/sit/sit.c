@@ -241,12 +241,10 @@ void sit_dstwr_initiator() {
 
 void sit_dstwr_responder() {
 	while(device_settings.state == measurement) { 
-		LOG_INF("Test1");
 		sit_receive_now();
 		msg_simple_t rx_poll_msg;
 		msg_id_t msg_id = twr_1_poll;
 		if(sit_check_msg_id(msg_id, &rx_poll_msg) && rx_poll_msg.header.dest == device_settings.deviceID){
-			LOG_INF("Test3");
 			uint64_t poll_rx_ts = get_rx_timestamp_u64();
 				
 			uint32_t resp_tx_time = (poll_rx_ts + (DS_POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
@@ -293,7 +291,6 @@ void sit_dstwr_responder() {
 				float tof = (float)tof_dtu * DWT_TIME_UNITS;
 				distance = tof * SPEED_OF_LIGHT;
 				LOG_INF("Distance: %lf", distance);
-				sequence = rx_ds_final_msg.header.sequence;
 				send_notify(device_settings.deviceID);
 			} else {
                 LOG_WRN("Something is wrong with Final Msg Receive");
@@ -304,13 +301,13 @@ void sit_dstwr_responder() {
 			LOG_WRN("Something is wrong with Poll Msg Receive");
             dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
 		}
+		sequence++;
 		k_msleep(90);
 	}
 }
 
 
 uint8_t sit_init() {
-	LOG_INF("Test");
 	device_init();
 	/* Configure SPI rate, for initialize it should not faster than 7 MHz */
 	port_set_dw_ic_spi_slowrate();
@@ -357,7 +354,6 @@ uint8_t sit_init() {
 
 	/* Enable Diacnostic all */
 	dwt_configciadiag(DW_CIA_DIAG_LOG_ALL);
-	LOG_INF("Test End");
  	k_msleep(100);
 
 	return 1;

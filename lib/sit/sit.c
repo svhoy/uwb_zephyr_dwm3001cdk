@@ -55,18 +55,6 @@ static uint32_t status_reg = 0;
 extern dwt_config_t sit_device_config;
 static char deviceID[17];
 
-json_distance_msg_t distance_notify = {
-	.type = "distance_msg",
-	.data = {
-		.state = "running",
-		.sequence = 0,
-		.measurements = 0,
-		.distance = 0.0,
-		.nlos_percent = 0,
-		.rssi_index_resp = 0.0,
-		.fp_index_resp = 0.0
-	}
-};
 /**
  * Values for the PG_DELAY and TX_POWER registers reflect the bandwidth and power of the spectrum at the current
  * temperature. These values can be calibrated prior to taking reference measurements. 
@@ -79,7 +67,10 @@ dwt_txconfig_t txconfig_options_ch9_sit = {
 
 uint32_t sequence = 0;
 uint32_t measurements = 0;
-float distance = 0.0;
+double distance = 0.0;
+double time_round_1, time_round_2 = 0.0;
+double time_reply_1, time_reply_2 = 0.0;
+
 
 void ble_wait_for_connection() {
 	while(!is_connected()) {
@@ -101,22 +92,36 @@ void reset_sequence() {
 
 void send_notify(uint8_t responder) {
 	if (distance >= 0.0) {
-		measurements++;
-		distance_notify.data.distance = distance;
-		distance_notify.data.sequence = sequence;
-		distance_notify.data.responder = responder;
-		distance_notify.data.measurements = measurements;
-		distance_notify.data.nlos_percent = diagnostic.nlos;
-		distance_notify.data.rssi_index_resp = diagnostic.rssi;
-		distance_notify.data.fp_index_resp = diagnostic.fpi;
+		json_distance_msg_all_t distance_notify = {
+			.header = {
+				.type = "distance_msg",
+				.state = "running",
+				.responder = responder,
+				.sequence = sequence,
+				.measurements = measurements,
+			},
+			.data = {
+				.distance = (float)distance,
+				.time_round_1 = (float)time_round_1 * DWT_TIME_UNITS,
+				.time_round_2 = (float)time_round_2 * DWT_TIME_UNITS,
+				.time_reply_1 = (float)time_reply_1 * DWT_TIME_UNITS,
+				.time_reply_2 = (float)time_reply_2 * DWT_TIME_UNITS,
+			}, 
+			.diagnostic = {
+				.rssi_index_resp = diagnostic.rssi,
+				.fp_index_resp = diagnostic.fpi,
+				.dummy = 0,
+				.nlos_percent_resp = diagnostic.nlos,
+			}
+		};
 		ble_sit_notify(&distance_notify, sizeof(distance_notify));
+		LOG_INF("Responder: %d", distance_notify.diagnostic.nlos_percent_resp);
+		measurements++;
 		if(device_settings.max_measurement != 0 && device_settings.max_measurement <= measurements) {
 			device_settings.state = sleep;
 		}
 	}
 }
-
-
 
 
 void sit_sstwr_initiator() {
@@ -135,13 +140,13 @@ void sit_sstwr_initiator() {
 				uint64_t poll_rx_ts = rx_final_msg.poll_rx_ts;
 				uint64_t resp_tx_ts = rx_final_msg.resp_tx_ts;
 
-				float clockOffsetRatio = dwt_readcarrierintegrator() * 
+				double clockOffsetRatio = dwt_readcarrierintegrator() * 
 						(FREQ_OFFSET_MULTIPLIER * HERTZ_TO_PPM_MULTIPLIER_CHAN_9 / 1.0e6) ;
 
-				uint64_t rtd_init = resp_rx_ts - poll_tx_ts;
-				uint64_t rtd_resp = resp_tx_ts - poll_rx_ts;
+				time_round_1 = (double)resp_rx_ts - poll_tx_ts;
+				time_reply_1 = (double)resp_tx_ts - poll_rx_ts;
 
-				float tof =  ((rtd_init - rtd_resp * 
+				double tof =  ((time_round_1 - time_reply_1 * 
 						(1 - clockOffsetRatio)) / 2.0) * DWT_TIME_UNITS;
 				
 				distance = tof * SPEED_OF_LIGHT;
@@ -280,15 +285,16 @@ void sit_dstwr_responder() {
 				resp_tx_ts_32 = (uint32_t) resp_tx_ts;
 				final_rx_ts_32 = (uint32_t) final_rx_ts;
 
-				double Ra, Rb, Da, Db;
 				int64_t tof_dtu;
-				Ra = (double)(resp_rx_ts - poll_tx_ts);
-				Rb = (double)(final_rx_ts_32 - resp_tx_ts_32);
-				Da = (double)(final_tx_ts - resp_rx_ts);
-				Db = (double)(resp_tx_ts_32 - poll_rx_ts_32);
-				tof_dtu = (int64_t)((Ra * Rb - Da * Db) / (Ra + Rb + Da + Db));
+				time_round_1 = (double)(resp_rx_ts - poll_tx_ts);
+				time_round_2 = (double)(final_rx_ts_32 - resp_tx_ts_32);
+				time_reply_1 = (double)(final_tx_ts - resp_rx_ts);
+				time_reply_2 = (double)(resp_tx_ts_32 - poll_rx_ts_32);
+				tof_dtu = (int64_t)((time_round_1 * time_round_2 - time_reply_1 * time_reply_2) 
+										/ (time_round_1 + time_round_2 + time_reply_1 + time_reply_2)
+									);
 
-				float tof = (float)tof_dtu * DWT_TIME_UNITS;
+				double tof = (double)tof_dtu * DWT_TIME_UNITS;
 				distance = tof * SPEED_OF_LIGHT;
 				LOG_INF("Distance: %lf", distance);
 				send_notify(device_settings.deviceID);

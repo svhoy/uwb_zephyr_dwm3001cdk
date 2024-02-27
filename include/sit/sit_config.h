@@ -126,20 +126,38 @@ typedef struct {
 } msg_ds_twr_final_t;
 
 typedef struct {
+    char type[15];
     char state[15];
     uint8_t responder;
     uint32_t sequence;
     uint32_t measurements;
+} json_header_t;
+
+typedef struct {
     float distance;
-    uint8_t nlos_percent;
-    float rssi_index_resp;
-    float fp_index_resp;
+    float time_round_1;
+    float time_round_2;
+    float time_reply_1;
+    float time_reply_2;
 } json_data_t;
 
+typedef struct {
+    float rssi_index_resp;
+    float fp_index_resp;
+    uint8_t dummy;
+    uint8_t nlos_percent_resp;
+} json_diagnostic_t;
+
 typedef struct  {
-    char type[15];
+    json_header_t header;
     json_data_t data;
 } json_distance_msg_t; 
+
+typedef struct {
+    json_header_t header;
+    json_data_t data;
+    json_diagnostic_t diagnostic;
+} json_distance_msg_all_t;
 
 extern dwt_config_t sit_device_config;
 

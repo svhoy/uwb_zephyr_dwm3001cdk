@@ -79,6 +79,7 @@ void set_device_state(char *command) {
 
 void set_device_id(uint8_t device_id) {
     device_settings.deviceID = device_id;
+    LOG_INF("Device ID: %d", device_settings.deviceID);
 }
 
 void set_responder(uint8_t responder) {

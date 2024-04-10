@@ -174,8 +174,8 @@ void sit_sstwr_responder() {
 			
 			uint32_t resp_tx_time = (poll_rx_ts + (POLL_RX_TO_RESP_TX_DLY_UUS * UUS_TO_DWT_TIME)) >> 8;
 
-			uint16_t tx_dly = get_rx_ant_dly();
-
+			uint16_t tx_dly = get_tx_ant_dly();
+			LOG_INF("TX Antenna Delay: %d", tx_dly);
 			uint32_t resp_tx_ts = (((uint64_t)(resp_tx_time & 0xFFFFFFFEUL)) << 8) + tx_dly;
 			
 			msg_ss_twr_final_t msg_ss_twr_final_t = {

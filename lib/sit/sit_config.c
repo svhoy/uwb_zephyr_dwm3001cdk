@@ -32,6 +32,8 @@
 
 #include "sit/sit_config.h"
 
+#include <deca_device_api.h>
+
 #define LOG_LEVEL 3
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(SIT_CONFIG, LOG_LEVEL_INF);
@@ -105,7 +107,9 @@ void set_measurement_type(char *measurement_type) {
 
 void set_rx_ant_dly(uint16_t dly) {
     device_settings.rx_ant_dly = dly;
+    dwt_setrxantennadelay(dly);
 }
 void set_tx_ant_dly(uint16_t dly) {
     device_settings.tx_ant_dly = dly;
+    dwt_settxantennadelay(dly);
 }

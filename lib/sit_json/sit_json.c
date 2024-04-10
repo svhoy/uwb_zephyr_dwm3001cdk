@@ -152,8 +152,9 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
 
     rx_ant_dly = cJSON_GetObjectItemCaseSensitive(json_msg, "rx_ant_dly");
     setup_struct->rx_ant_dly = rx_ant_dly->valueint;
-
+    LOG_INF("Checking RX DLY Type \"%d\"\n", rx_ant_dly->valueint);
     tx_ant_dly = cJSON_GetObjectItemCaseSensitive(json_msg, "tx_ant_dly");
+    LOG_INF("Checking RX DLY Type \"%d\"\n", tx_ant_dly->valueint);
     setup_struct->tx_ant_dly = tx_ant_dly->valueint;
 
     LOG_INF("Type: %s", type->valuestring);

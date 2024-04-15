@@ -47,6 +47,9 @@
 typedef enum {
     initiator,  ///< initiator of SSTWR or DSTWR
     responder,  ///< responder of SSTWR or DSTWR
+    A,          ///< Device A in Calibration Prozess
+    B,          ///< Device B in Calibration Prozess
+    C,          ///< Device C in Calibration Prozess
     none        ///< init State for every Device
 } device_type_t;
 
@@ -66,6 +69,9 @@ typedef enum {
     ds_3_twr,
     ds_4_twr, ///< not Implemented yet 
     ds_all_twr, ///< not Implemnted yet
+    simple_calibration,
+    extended_calibration,
+    two_device_calibration,
 } measurement_type_t;
 
 typedef struct {
@@ -126,6 +132,30 @@ typedef struct {
 } msg_ds_twr_final_t;
 
 typedef struct {
+    header_t header;
+    uint32_t poll_rx;
+    uint32_t resp_rx;
+    uint32_t final_rx;
+    uint16_t crc;
+} simple_calibration_t;
+
+typedef struct {
+    header_t header;
+    uint32_t sensing_1_tx;
+    uint32_t sensing_2_rx;
+    uint32_t sensing_3_tx;
+    uint16_t crc;
+} msg_sensing_3_t;
+
+typedef struct {
+    header_t header;
+    uint32_t sensing_1_rx;
+    uint32_t sensing_2_rx;
+    uint32_t sensing_3_rx;
+    uint16_t crc;
+} msg_sensing_info_t;
+
+typedef struct {
     char type[15];
     char state[15];
     uint8_t responder;
@@ -159,6 +189,22 @@ typedef struct {
     json_diagnostic_t diagnostic;
 } json_distance_msg_all_t;
 
+typedef struct {
+    char type[15];
+} json_simple_header_t;
+
+typedef struct {
+    float time_tc_i;
+    float time_tc_ii;
+    float time_tb_i;
+    float time_tb_ii;
+} json_simple_data_t;
+
+typedef struct {
+    json_simple_header_t header;
+    json_simple_data_t data;
+} json_simple_cali_msg_t;
+
 extern dwt_config_t sit_device_config;
 
 /* Delay between frames, in UWB microseconds. */
@@ -168,7 +214,7 @@ extern dwt_config_t sit_device_config;
 #define POLL_RX_TO_RESP_TX_DLY_UUS 1250 // 650 * 1,026us ->
 #define RESP_TX_TO_FINAL_RX_DLY_UUS 500 // 650 * 1,026us ->
 /* Receive response timeout. */
-#define RESP_RX_TIMEOUT_UUS 1500 // 400 * 1,026us -> 
+#define RESP_RX_TIMEOUT_UUS 2000 // 400 * 1,026us -> 
 
 
 #define CPU_PROCESSING_TIME 400
@@ -190,6 +236,7 @@ extern dwt_config_t sit_device_config;
 
 void set_device_state(char *comand);
 void set_device_id(uint8_t device_id);
+void set_device_type(char *type);
 void set_responder(uint8_t responder);
 void set_min_measurement(uint8_t measurement);
 void set_max_measurement(uint8_t measurement);

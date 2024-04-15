@@ -87,6 +87,12 @@ bool sit_check_final_msg_id(msg_id_t id, msg_ss_twr_final_t* message);
 
 bool sit_check_ds_final_msg_id(msg_id_t id, msg_ds_twr_final_t* message);
 
+bool sit_check_simple_cali_final_msg_id(msg_id_t id, simple_calibration_t* message);
+
+bool sit_check_sensing_3_msg_id(msg_id_t id, msg_sensing_3_t * message);
+
+bool sit_check_sensing_info_msg_id(msg_id_t id, msg_sensing_info_t * message);
+
 void sit_set_rx_tx_delay_and_rx_timeout(uint32_t delay_us,uint16_t timeout);
 void sit_set_rx_after_tx_delay(uint32_t delay_us);
 void sit_set_rx_timeout(uint16_t timeout);

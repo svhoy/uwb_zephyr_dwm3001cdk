@@ -167,25 +167,33 @@ static ssize_t write_json_setup(
 		LOG_INF("TX Antenna Delay: %d", setup_str.tx_ant_dly);
 		set_rx_ant_dly(setup_str.rx_ant_dly);
 		set_tx_ant_dly(setup_str.tx_ant_dly);
+		set_device_type(setup_str.device_type);
 		if (strncmp(setup_str.initiator_device, bt_get_name(), 16) == 0 ){
 			LOG_INF("Test Initiator");
-			device_type = initiator;
 			set_device_id(1);
 			set_responder(100 + setup_str.responder - 1);
-		} else {
+		} else if (sizeof(setup_str.responder_device) > 0) {
 			for(uint8_t i=0; i<setup_str.responder; i++) {
 				if (strncmp(setup_str.responder_device, bt_get_name(), 16) == 0 ) {
 					LOG_INF("Test Responder");
-					device_type = responder;
 					set_device_id(100 + i);
 					break;
 				}  else {
 					LOG_ERR("Setup: %s", setup_str.type);
-					device_type = none;
 				}
 			}
-			
+		} else {
+			if (strcmp(setup_str.device_type, "A")) {
+				set_device_id(0);
+			} else if (strcmp(setup_str.device_type, "B")) {
+				set_device_id(1);
+			} else if (strcmp(setup_str.device_type, "C")) {
+				set_device_id(2);
+			} else {
+				LOG_ERR("Device Type: %s", setup_str.device_type);
+			}
 		}
+		
 	}
 	free(value);
 	return len;
@@ -333,7 +341,11 @@ void bas_notify(void) {
 
 
 
-void ble_sit_notify(json_distance_msg_t *json_data, size_t data_len) {
+void ble_sit_notify(json_distance_msg_all_t *json_data, size_t data_len) {
+	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
+}
+
+void ble_sit_simple_notify(json_simple_cali_msg_t *json_data, size_t data_len) {
 	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
 }
 

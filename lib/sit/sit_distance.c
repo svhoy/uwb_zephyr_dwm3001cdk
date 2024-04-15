@@ -133,7 +133,7 @@ bool sit_check_msg(uint8_t* data, uint16_t expected_frame_length) {
 			#endif
 			result = true;
 		} else {
-			LOG_ERR("RX Frame Length: %u != Expected Frame Length: %u",frame_length,expected_frame_length);
+			LOG_ERR("RX Frame Length: %u != Expected Frame Length: %u",frame_length, expected_frame_length);
 		}
 	} else {
 		dwt_writesysstatuslo(SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR);
@@ -148,8 +148,8 @@ bool sit_check_msg(uint8_t* data, uint16_t expected_frame_length) {
 }
 
 bool sit_check_msg_id(msg_id_t id, msg_simple_t* message) {
-	
 	bool result = false;
+	LOG_INF("sit_check_msg_id() id: %u", (uint8_t)id);
 	if(sit_check_msg((uint8_t*)message, sizeof(msg_simple_t))){
 		if(message->header.id == id) {
 			result = true;
@@ -165,6 +165,7 @@ bool sit_check_msg_id(msg_id_t id, msg_simple_t* message) {
 bool sit_check_final_msg_id(msg_id_t id, msg_ss_twr_final_t* message) {
 	bool result = false;
 	if(sit_check_msg((uint8_t*)message, sizeof(msg_ss_twr_final_t))){
+		LOG_INF("sit_checkReceivedIdFinalMsg() id: %u & %u", (uint8_t)id, (uint8_t)message->header.id);
 		if(message->header.id == id) {
 			result = true;
 		} else {
@@ -186,6 +187,48 @@ bool sit_check_ds_final_msg_id(msg_id_t id, msg_ds_twr_final_t* message) {
 		}
 	} else {
 		LOG_ERR("sit_checkReceivedIdFinalMsg(%u,header) fail",(uint8_t)id);
+	}
+	return result;
+}
+
+bool sit_check_simple_cali_final_msg_id(msg_id_t id, simple_calibration_t* message) {
+	bool result = false;
+	if(sit_check_msg((uint8_t*)message, sizeof(simple_calibration_t))){
+		if(message->header.id == id) {
+			result = true;
+		} else {
+			LOG_ERR("sit_check_simple_cali_final_msg_id() mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
+		}
+	} else {
+		LOG_ERR("sit_check_simple_cali_final_msg_id(%u,header) fail",(uint8_t)id);
+	}
+	return result;
+}
+
+bool sit_check_sensing_3_msg_id(msg_id_t id, msg_sensing_3_t * message){
+	bool result = false;
+	if(sit_check_msg((uint8_t*)message, sizeof(msg_sensing_3_t))){
+		if(message->header.id == id) {
+			result = true;
+		} else {
+			LOG_ERR("sit_check_simple_cali_final_msg_id() mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
+		}
+	} else {
+		LOG_ERR("sit_check_simple_cali_final_msg_id(%u,header) fail",(uint8_t)id);
+	}
+	return result;
+}
+
+bool sit_check_sensing_info_msg_id(msg_id_t id, msg_sensing_info_t * message){
+	bool result = false;
+	if(sit_check_msg((uint8_t*)message, sizeof(msg_sensing_info_t))){
+		if(message->header.id == id) {
+			result = true;
+		} else {
+			LOG_ERR("sit_check_simple_cali_final_msg_id() mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
+		}
+	} else {
+		LOG_ERR("sit_check_simple_cali_final_msg_id(%u,header) fail",(uint8_t)id);
 	}
 	return result;
 }

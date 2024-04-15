@@ -84,6 +84,22 @@ void set_device_id(uint8_t device_id) {
     LOG_INF("Device ID: %d", device_settings.deviceID);
 }
 
+void set_device_type(char *type) {
+    if (strcmp(type, "initiator") == 0) {
+        device_type = initiator;
+    } else if (strcmp(type, "responder") == 0) {
+        device_type = responder;
+    } else if (strcmp(type, "A") == 0) {
+        device_type = A;
+    } else if (strcmp(type, "B") == 0) {
+        device_type = B;
+    } else if (strcmp(type, "C") == 0) {
+        device_type = C;
+    } else {
+        LOG_ERR("Wrong device type");
+    }
+}
+
 void set_responder(uint8_t responder) {
     device_settings.responder = responder;
 }
@@ -97,10 +113,21 @@ void set_max_measurement(uint8_t measurement) {
 }
 
 void set_measurement_type(char *measurement_type) {
+    LOG_INF("Measurement type: %s", measurement_type);
     if (strcmp(measurement_type, "ss_twr") == 0) {
         device_settings.measurement_type = ss_twr;
     } else if (strcmp(measurement_type, "ds_3_twr") == 0) {
         device_settings.measurement_type = ds_3_twr;
+    } else if (strcmp(measurement_type, "simple") == 0) {
+        device_settings.measurement_type = simple_calibration;
+    } else if (strcmp(measurement_type, "extended") == 0) {
+        device_settings.measurement_type = extended_calibration;
+    } else if (strcmp(measurement_type, "two_device") == 0) {
+        device_settings.measurement_type = two_device_calibration;
+    }
+    else {
+        LOG_ERR("Wrong measurement type");
+    
     }
     
 }

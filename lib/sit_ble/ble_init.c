@@ -174,7 +174,7 @@ static ssize_t write_json_setup(
 			set_responder(100 + setup_str.responder - 1);
 		} else if (sizeof(setup_str.responder_device) > 0) {
 			for(uint8_t i=0; i<setup_str.responder; i++) {
-				if (strncmp(setup_str.responder_device, bt_get_name(), 16) == 0 ) {
+				if (strncmp(setup_str.responder_device[i], bt_get_name(), 16) == 0 ) {
 					LOG_INF("Test Responder");
 					set_device_id(100 + i);
 					break;
@@ -346,6 +346,10 @@ void ble_sit_notify(json_distance_msg_all_t *json_data, size_t data_len) {
 }
 
 void ble_sit_simple_notify(json_simple_cali_msg_t *json_data, size_t data_len) {
+	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
+}
+
+void ble_sit_td_notify(json_simple_td_msg_t *json_data, size_t data_len) {
 	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
 }
 

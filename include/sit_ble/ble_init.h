@@ -60,6 +60,7 @@ uint8_t sit_ble_init(void);
 bool is_connected(void);
 void ble_sit_notify(json_distance_msg_all_t* json_data, size_t data_len);
 void ble_sit_simple_notify(json_simple_cali_msg_t* json_data, size_t data_len);
+void ble_sit_td_notify(json_simple_td_msg_t* json_data, size_t data_len);
 int ble_get_command(void);
 void bas_notify(void);
 

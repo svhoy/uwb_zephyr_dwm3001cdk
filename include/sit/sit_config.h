@@ -96,6 +96,14 @@ typedef enum {
     ss_twr_2_resp,
     ds_twr_2_resp, 
     ds_twr_3_final,
+    simple_poll,
+    simple_resp,
+    simple_final,
+    extended_poll,
+    sensing_1,
+    sensing_2,
+    sensing_3,
+    sensing_resp,
 } msg_id_t;
 
 typedef struct {
@@ -204,6 +212,20 @@ typedef struct {
     json_simple_header_t header;
     json_simple_data_t data;
 } json_simple_cali_msg_t;
+
+typedef struct {
+    float time_m21;
+    float time_m31;
+    float time_a21;
+    float time_a31;
+    float time_b21;
+    float time_b31;
+} json_td_data_t;
+
+typedef struct {
+    json_simple_header_t header;
+    json_td_data_t data;
+} json_simple_td_msg_t;
 
 extern dwt_config_t sit_device_config;
 

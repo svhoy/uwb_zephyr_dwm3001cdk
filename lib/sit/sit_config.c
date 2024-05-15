@@ -64,7 +64,7 @@ dwt_config_t sit_device_config = {
     DWT_PHRMODE_STD,  /* PHY header mode. */
     DWT_PHRRATE_STD,  /* PHY header rate. */
     (129 + 8 - 8),    /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
-    DWT_STS_MODE_OFF,   /* STS disabled */
+    DWT_STS_MODE_OFF, /* STS disabled */
     DWT_STS_LEN_64,   /* STS length see allowed values in Enum dwt_sts_lengths_e */
     DWT_PDOA_M0       /* PDOA mode off */
 };
@@ -74,6 +74,8 @@ void set_device_state(char *command) {
 		device_settings.state = measurement;
 	} else if (strcmp(command, "stop") == 0) {
         device_settings.state = sleep;
+        device_type = none;
+        dwt_forcetrxoff();
     } else {
         LOG_ERR("Wrong command");
     }
@@ -90,11 +92,11 @@ void set_device_type(char *type) {
     } else if (strcmp(type, "responder") == 0) {
         device_type = responder;
     } else if (strcmp(type, "A") == 0) {
-        device_type = A;
+        device_type = dev_a;
     } else if (strcmp(type, "B") == 0) {
-        device_type = B;
+        device_type = dev_b;
     } else if (strcmp(type, "C") == 0) {
-        device_type = C;
+        device_type = dev_c;
     } else {
         LOG_ERR("Wrong device type");
     }

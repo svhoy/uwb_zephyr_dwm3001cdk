@@ -47,9 +47,9 @@
 typedef enum {
     initiator,  ///< initiator of SSTWR or DSTWR
     responder,  ///< responder of SSTWR or DSTWR
-    A,          ///< Device A in Calibration Prozess
-    B,          ///< Device B in Calibration Prozess
-    C,          ///< Device C in Calibration Prozess
+    dev_a,          ///< Device A in Calibration Prozess
+    dev_b,          ///< Device B in Calibration Prozess
+    dev_c,          ///< Device C in Calibration Prozess
     none        ///< init State for every Device
 } device_type_t;
 
@@ -142,7 +142,7 @@ typedef struct {
 typedef struct {
     header_t header;
     uint32_t poll_rx;
-    uint32_t resp_rx;
+    uint32_t resp_tx;
     uint32_t final_rx;
     uint16_t crc;
 } simple_calibration_t;
@@ -158,7 +158,7 @@ typedef struct {
 typedef struct {
     header_t header;
     uint32_t sensing_1_rx;
-    uint32_t sensing_2_rx;
+    uint32_t sensing_2_tx;
     uint32_t sensing_3_rx;
     uint16_t crc;
 } msg_sensing_info_t;
@@ -199,6 +199,8 @@ typedef struct {
 
 typedef struct {
     char type[15];
+    uint32_t sequence;
+    uint32_t measurements;
 } json_simple_header_t;
 
 typedef struct {
@@ -206,6 +208,7 @@ typedef struct {
     float time_tc_ii;
     float time_tb_i;
     float time_tb_ii;
+    uint8_t dummy;
 } json_simple_data_t;
 
 typedef struct {
@@ -220,6 +223,16 @@ typedef struct {
     float time_a31;
     float time_b21;
     float time_b31;
+    float time_tc_i;
+    float time_tc_ii;
+    float time_tb_i;
+    float time_tb_ii;
+    float time_round_1;
+    float time_round_2;
+    float time_reply_1;
+    float time_reply_2;
+    float distance;
+    uint8_t dummy;
 } json_td_data_t;
 
 typedef struct {
@@ -231,21 +244,21 @@ extern dwt_config_t sit_device_config;
 
 /* Delay between frames, in UWB microseconds. */
 // #define POLL_TX_TO_RESP_RX_DLY_UUS 250 // 240 * 1,026us ->
-#define POLL_TX_TO_RESP_RX_DLY_UUS 500 // 240 * 1,026us ->
+#define POLL_TX_TO_RESP_RX_DLY_UUS 1000 // 240 * 1,026us ->
 /* Delay between frames, in UWB microseconds. */
-#define POLL_RX_TO_RESP_TX_DLY_UUS 1250 // 650 * 1,026us ->
+#define POLL_RX_TO_RESP_TX_DLY_UUS 1350 // 650 * 1,026us ->
 #define RESP_TX_TO_FINAL_RX_DLY_UUS 500 // 650 * 1,026us ->
 /* Receive response timeout. */
 #define RESP_RX_TIMEOUT_UUS 2000 // 400 * 1,026us -> 
 
 
 #define CPU_PROCESSING_TIME 400
-#define DS_POLL_TX_TO_RESP_RX_DLY_UUS (750 + CPU_PROCESSING_TIME)
+#define DS_POLL_TX_TO_RESP_RX_DLY_UUS (1100 + CPU_PROCESSING_TIME)
 #define DS_RESP_RX_TO_FINAL_TX_DLY_UUS (1000 + CPU_PROCESSING_TIME)
 #define DS_RESP_RX_TIMEOUT_UUS 1200
 #define DS_PRE_TIMEOUT 5
 
-#define DS_POLL_RX_TO_RESP_TX_DLY_UUS 1350
+#define DS_POLL_RX_TO_RESP_TX_DLY_UUS 1600
 #define DS_RESP_TX_TO_FINAL_RX_DLY_UUS 1200
 #define DS_FINAL_RX_TIMEOUT 1800
 
@@ -254,7 +267,7 @@ extern dwt_config_t sit_device_config;
  *  UWB microsecond (uus) to device time unit (dtu, around 15.65 ps) conversion factor.
  * 1 uus = 512 / 499.2 µs and 1 µs = 499.2 * 128 dtu. 
 **/
-#define UUS_TO_DWT_TIME 65536
+#define UUS_TO_DWT_TIME 63898
 
 void set_device_state(char *comand);
 void set_device_id(uint8_t device_id);

@@ -57,12 +57,6 @@ diagnostic_info diagnostic;
  * @return None
  *
 ****************************************************************************/
-uint32_t sit_msg_receive() {
-	uint32_t l_status_reg;
-	waitforsysstatus(&l_status_reg, NULL, (DWT_INT_RXFCG_BIT_MASK | SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR), 0);
-	return l_status_reg;
-}
-
 void sit_start_poll(uint8_t* msg_data, uint16_t msg_size){
 	dwt_writesysstatuslo(DWT_INT_TXFRS_BIT_MASK);
 	dwt_writetxdata(msg_size, msg_data, 0); // 0 offset
@@ -71,9 +65,9 @@ void sit_start_poll(uint8_t* msg_data, uint16_t msg_size){
 }
 
 bool sit_send_at(uint8_t* msg_data, uint16_t size, uint32_t tx_time){
-	dwt_setdelayedtrxtime(tx_time);
 	dwt_writetxdata(size, msg_data, 0); 
 	dwt_writetxfctrl(size, 0, 1); 
+	dwt_setdelayedtrxtime(tx_time);
 	uint8_t ret = dwt_starttx(DWT_START_TX_DELAYED);
 	if(ret == DWT_SUCCESS) {
 		waitforsysstatus(&status_reg, NULL, DWT_INT_TXFRS_BIT_MASK, 0);
@@ -106,16 +100,27 @@ bool sit_send_at_with_response(uint8_t* msg_data, uint16_t size, uint32_t tx_tim
 	}
 }
 
-void sit_receive_now() {
-	dwt_setpreambledetecttimeout(0);
-	dwt_setrxtimeout(0);
-	dwt_rxenable(DWT_START_RX_IMMEDIATE);
+void sit_receive_now(uint16_t preamble_detction_timeout, uint32_t rx_timeout) {
+	dwt_setpreambledetecttimeout(preamble_detction_timeout);
+	dwt_setrxtimeout(rx_timeout);
+	uint8_t ret = dwt_rxenable(DWT_START_RX_IMMEDIATE);
+	if (ret == DWT_SUCCESS) {
+		LOG_INF("RX enabled");
+	} else {
+		LOG_ERR("RX enable failed");
+	}
 }
 
-void sit_receive_at(uint16_t timeout) {
+void sit_receive_at(uint32_t timeout) {
 	dwt_setpreambledetecttimeout(0);
 	dwt_setrxtimeout(timeout); // 0 : disable timeout
-	dwt_rxenable(DWT_START_RX_DELAYED); //DWT_START_RX_DELAYED only used with dwt_setdelayedtrxtime() before 
+	dwt_rxenable(DWT_START_RX_DELAYED | DWT_IDLE_ON_DLY_ERR); //DWT_START_RX_DELAYED only used with dwt_setdelayedtrxtime() before 
+}
+
+uint32_t sit_msg_receive() {
+	uint32_t l_status_reg;
+	waitforsysstatus(&l_status_reg, NULL, (DWT_INT_RXFCG_BIT_MASK | SYS_STATUS_ALL_RX_TO | SYS_STATUS_ALL_RX_ERR), 0);
+	return l_status_reg;
 }
 
 bool sit_check_msg(uint8_t* data, uint16_t expected_frame_length) {
@@ -142,6 +147,7 @@ bool sit_check_msg(uint8_t* data, uint16_t expected_frame_length) {
 		uint32_t reg_removed = (status_reg ^ reg2);
 		LOG_WRN("sit_checkReceivedMessage() reg1 = 0x%08x ; reg2 = 0x%08x ; removed =  0x%08x",status_reg,reg2,reg_removed);
 		status_reg = reg2;
+		dwt_forcetrxoff(); // set Transceiver to idle if error occurs
 	}
 
 	return result;
@@ -149,12 +155,11 @@ bool sit_check_msg(uint8_t* data, uint16_t expected_frame_length) {
 
 bool sit_check_msg_id(msg_id_t id, msg_simple_t* message) {
 	bool result = false;
-	LOG_INF("sit_check_msg_id() id: %u", (uint8_t)id);
 	if(sit_check_msg((uint8_t*)message, sizeof(msg_simple_t))){
 		if(message->header.id == id) {
 			result = true;
 		} else {
-			LOG_ERR("Simple MSG mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
+			LOG_ERR("Simple MSG mismatch expect id / header id (%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
 		}
 	} else {
 		LOG_ERR("SIT Failed Receive Simple MSG (%u, header) fail",(uint8_t)id);
@@ -211,10 +216,10 @@ bool sit_check_sensing_3_msg_id(msg_id_t id, msg_sensing_3_t * message){
 		if(message->header.id == id) {
 			result = true;
 		} else {
-			LOG_ERR("sit_check_simple_cali_final_msg_id() mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
+			LOG_ERR("sit_check_sensing_3_msg_id() mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
 		}
 	} else {
-		LOG_ERR("sit_check_simple_cali_final_msg_id(%u,header) fail",(uint8_t)id);
+		LOG_ERR("sit_check_sensing_3_final_msg_id(%u,header) fail",(uint8_t)id);
 	}
 	return result;
 }
@@ -225,10 +230,10 @@ bool sit_check_sensing_info_msg_id(msg_id_t id, msg_sensing_info_t * message){
 		if(message->header.id == id) {
 			result = true;
 		} else {
-			LOG_ERR("sit_check_simple_cali_final_msg_id() mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
+			LOG_ERR("sit_check_sensing_info_final_msg_id() mismatch id(%u/%u)",(uint8_t)id,(uint8_t)message->header.id);
 		}
 	} else {
-		LOG_ERR("sit_check_simple_cali_final_msg_id(%u,header) fail",(uint8_t)id);
+		LOG_ERR("sit_check_sensig_info_msg_id(%u,header) fail",(uint8_t)id);
 	}
 	return result;
 }

@@ -116,18 +116,17 @@ static ssize_t write_json_comand(
 		uint16_t offset,
 		uint8_t flags
 	) {
-	char *value = malloc(len + 1);
 	json_command_msg_t command_str;
+	const char* char_buf = (const char*)buf;
 
-	memcpy(value, buf, len);
-	value[len+1] = '\0';
-	int ret = json_decode_state_msg(value, &command_str);
+	int ret = json_decode_state_msg(char_buf, &command_str);
+
 	if (ret < 0) {
 		LOG_ERR("JSON Parse Error: %d", ret);
 	} else {
 		if (strcmp(command_str.type, "measurement_msg") == 0 ){
 			if(strcmp(command_str.command, "start") == 0) {
-				LOG_INF("Abbruch Start");
+				LOG_INF("Start Measurement");
 				reset_sequence();
 				set_device_state(command_str.command);
 			} else if(strcmp(command_str.command, "stop") == 0 && device_type == initiator && device_settings.min_measurement != 0 && device_settings.min_measurement > measurements) {
@@ -139,7 +138,7 @@ static ssize_t write_json_comand(
 			LOG_ERR("Command: %s", command_str.type);
 		}
 	}
-	free(value);
+
 	return len;
 }
 
@@ -151,12 +150,11 @@ static ssize_t write_json_setup(
 		uint16_t offset,
 		uint8_t flags
 	) {
-	char *value = malloc(len + 1);
+	const char* value = (const char*)buf;
 	json_setup_msg_t setup_str;
 
-	memcpy(value, buf, len);
-	value[len+1] = '\0';
 	int ret = json_decode_setup_msg(value, &setup_str);
+
 	if (ret < 0) {
 		LOG_ERR("JSON Parse Error: %d", ret);
 	} else {
@@ -172,7 +170,7 @@ static ssize_t write_json_setup(
 			LOG_INF("Test Initiator");
 			set_device_id(1);
 			set_responder(100 + setup_str.responder - 1);
-		} else if (sizeof(setup_str.responder_device) > 0) {
+		} else if (strlen(setup_str.responder_device[0]) > 0) {
 			for(uint8_t i=0; i<setup_str.responder; i++) {
 				if (strncmp(setup_str.responder_device[i], bt_get_name(), 16) == 0 ) {
 					LOG_INF("Test Responder");
@@ -183,11 +181,11 @@ static ssize_t write_json_setup(
 				}
 			}
 		} else {
-			if (strcmp(setup_str.device_type, "A")) {
+			if (strcmp(setup_str.device_type, "A") == 0) {
 				set_device_id(0);
-			} else if (strcmp(setup_str.device_type, "B")) {
+			} else if (strcmp(setup_str.device_type, "B") == 0) {
 				set_device_id(1);
-			} else if (strcmp(setup_str.device_type, "C")) {
+			} else if (strcmp(setup_str.device_type, "C") == 0) {
 				set_device_id(2);
 			} else {
 				LOG_ERR("Device Type: %s", setup_str.device_type);
@@ -195,7 +193,6 @@ static ssize_t write_json_setup(
 		}
 		
 	}
-	free(value);
 	return len;
 }
 

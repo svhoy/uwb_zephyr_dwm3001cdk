@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <float.h>
 
 
 #include <zephyr/kernel.h>

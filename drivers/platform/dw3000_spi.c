@@ -70,7 +70,7 @@ void dw3000_spi_speed_slow(void)
 }
 
 void dw3000_spi_speed_fast(void)
-{
+{	
 	spi_cfg = &spi_cfgs[1];
 }
 

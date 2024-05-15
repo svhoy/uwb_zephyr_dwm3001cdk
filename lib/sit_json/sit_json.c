@@ -108,7 +108,7 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
         LOG_INF("Checking msg type \"%s\"\n", type->valuestring);
         strcpy(setup_struct->type, type->valuestring);
     } else {
-        LOG_ERR("Something wrong");
+        LOG_ERR("Something with msg type wrong");
     }
 
     device_type = cJSON_GetObjectItemCaseSensitive(json_msg, "device_type");
@@ -116,7 +116,7 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
         LOG_INF("Checking msg device_type \"%s\"\n", device_type->valuestring);
         strcpy(setup_struct->device_type, device_type->valuestring);
     } else {
-        LOG_ERR("Something wrong");
+        LOG_ERR("Something with device type wrong");
     }
 
     initiator_device = cJSON_GetObjectItemCaseSensitive(json_msg, "initiator_device");
@@ -124,7 +124,7 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
         LOG_INF("Checking initiator_device \"%s\"\n", initiator_device->valuestring);
         strcpy(setup_struct->initiator_device, initiator_device->valuestring);
     } else {
-        LOG_ERR("Something wrong");
+        LOG_ERR("Something init device wrong");
     }
 
     initiator = cJSON_GetObjectItemCaseSensitive(json_msg, "initiator");
@@ -137,7 +137,7 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
             LOG_INF("Checking responder_device \"%s\"\n", responder_device->valuestring);
             strcpy(setup_struct->responder_device[index], responder_device->valuestring);
         } else {
-            LOG_ERR("Something wrong");
+            LOG_ERR("Something resp devicewrong");
         }
         index++;
     }
@@ -156,7 +156,7 @@ int json_decode_setup_msg(char *json, json_setup_msg_t *setup_struct) {
         LOG_INF("Checking Measurement Type \"%s\"\n", measurement_type->valuestring);
         strcpy(setup_struct->measurement_type, measurement_type->valuestring);
     } else {
-        LOG_ERR("Something wrong");
+        LOG_ERR("Something measurement type wrong");
     }
 
     rx_ant_dly = cJSON_GetObjectItemCaseSensitive(json_msg, "rx_ant_dly");

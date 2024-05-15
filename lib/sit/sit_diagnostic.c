@@ -29,9 +29,9 @@ void get_fp_pp_index(void) {
     uint16_t fp_int = rx_diag.ipatovFpIndex >> 6;
     uint8_t dgc_decision = dwt_get_dgcdecision();
     uint32_t fp_index = fp_pp_index.index_fp_u32 >> 6;
-    uint32_t pp_index = fp_pp_index.index_pp_u32 >> 6;
+    //uint32_t pp_index = fp_pp_index.index_pp_u32 >> 6;
     dwt_readaccdata(accum_data, ACCUM_DATA_LEN, (fp_index - 2));
-    int32_t acc_value = ((int32_t)accum_data[3] << 24) | ((int32_t)accum_data[2] << 16) | ((int32_t)accum_data[1] << 8) | accum_data[0];
+    //int32_t acc_value = ((int32_t)accum_data[3] << 24) | ((int32_t)accum_data[2] << 16) | ((int32_t)accum_data[1] << 8) | accum_data[0];
     LOG_INF("DGC: %u", dgc_decision);
     LOG_INF("FP: %u", fp_index);
     LOG_INF("PP: %u", fp_int);

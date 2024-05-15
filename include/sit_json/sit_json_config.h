@@ -30,6 +30,7 @@ typedef struct {
     uint8_t min_measurement;
     uint8_t max_measurement;
     char measurement_type[11];
+    char device_type[10];
     uint16_t rx_ant_dly;
     uint16_t tx_ant_dly;
 } json_setup_msg_t;

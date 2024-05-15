@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 
+
 #include <deca_device_api.h>
 
 #include <zephyr/drivers/hwinfo.h>
@@ -108,9 +109,9 @@ void init_device_id(void) {
 	for(int i = 0; i < sizeof(buf_deviceID); i++){
 		sprintf(m_deviceID + 2*i, "%02X", buf_deviceID[i]);
 	}
-	m_deviceID[16] = "\0";
+    m_deviceID[16] = '\0';
 }
 
 void get_device_id(char **deviceID) {
-	*deviceID = strdup(m_deviceID);
+    *deviceID = strdup(m_deviceID);
 }

@@ -41,7 +41,7 @@
 
 extern diagnostic_info diagnostic; 
 
-void sit_receive_now();
+void sit_receive_now(uint16_t preamble_detction_timeout, uint32_t rx_timeout);
 
 /***************************************************************************
  * Start ranging with a poll msg 
@@ -74,12 +74,12 @@ bool sit_send_at_with_response(uint8_t* msg_data, uint16_t size, uint32_t tx_tim
  *
  * @param uint8_t* msg_data ->  pointer to the data you like to send with
  *                              the poll msg
- * @param uint16_t msg_size ->  length of the data you like to send 
+ * @param uint32_t msg_size ->  length of the data you like to send 
  *
  * @return None
  *
 ****************************************************************************/
-void sit_receive_at(uint16_t timeout);
+void sit_receive_at(uint32_t timeout);
 
 bool sit_check_msg_id(msg_id_t id, msg_simple_t * message);
 
@@ -87,11 +87,16 @@ bool sit_check_final_msg_id(msg_id_t id, msg_ss_twr_final_t* message);
 
 bool sit_check_ds_final_msg_id(msg_id_t id, msg_ds_twr_final_t* message);
 
+bool sit_check_simple_cali_final_msg_id(msg_id_t id, simple_calibration_t* message);
+
+bool sit_check_sensing_3_msg_id(msg_id_t id, msg_sensing_3_t * message);
+
+bool sit_check_sensing_info_msg_id(msg_id_t id, msg_sensing_info_t * message);
+
 void sit_set_rx_tx_delay_and_rx_timeout(uint32_t delay_us,uint16_t timeout);
 void sit_set_rx_after_tx_delay(uint32_t delay_us);
 void sit_set_rx_timeout(uint16_t timeout);
 void sit_set_preamble_detection_timeout(uint16_t timeout);
-
 
 void recover_tx_errors();
 

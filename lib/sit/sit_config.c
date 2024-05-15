@@ -64,7 +64,7 @@ dwt_config_t sit_device_config = {
     DWT_PHRMODE_STD,  /* PHY header mode. */
     DWT_PHRRATE_STD,  /* PHY header rate. */
     (129 + 8 - 8),    /* SFD timeout (preamble length + 1 + SFD length - PAC size). Used in RX only. */
-    DWT_STS_MODE_OFF,   /* STS disabled */
+    DWT_STS_MODE_OFF, /* STS disabled */
     DWT_STS_LEN_64,   /* STS length see allowed values in Enum dwt_sts_lengths_e */
     DWT_PDOA_M0       /* PDOA mode off */
 };
@@ -74,6 +74,8 @@ void set_device_state(char *command) {
 		device_settings.state = measurement;
 	} else if (strcmp(command, "stop") == 0) {
         device_settings.state = sleep;
+        device_type = none;
+        dwt_forcetrxoff();
     } else {
         LOG_ERR("Wrong command");
     }
@@ -82,6 +84,22 @@ void set_device_state(char *command) {
 void set_device_id(uint8_t device_id) {
     device_settings.deviceID = device_id;
     LOG_INF("Device ID: %d", device_settings.deviceID);
+}
+
+void set_device_type(char *type) {
+    if (strcmp(type, "initiator") == 0) {
+        device_type = initiator;
+    } else if (strcmp(type, "responder") == 0) {
+        device_type = responder;
+    } else if (strcmp(type, "A") == 0) {
+        device_type = dev_a;
+    } else if (strcmp(type, "B") == 0) {
+        device_type = dev_b;
+    } else if (strcmp(type, "C") == 0) {
+        device_type = dev_c;
+    } else {
+        LOG_ERR("Wrong device type");
+    }
 }
 
 void set_responder(uint8_t responder) {
@@ -97,10 +115,21 @@ void set_max_measurement(uint8_t measurement) {
 }
 
 void set_measurement_type(char *measurement_type) {
+    LOG_INF("Measurement type: %s", measurement_type);
     if (strcmp(measurement_type, "ss_twr") == 0) {
         device_settings.measurement_type = ss_twr;
     } else if (strcmp(measurement_type, "ds_3_twr") == 0) {
         device_settings.measurement_type = ds_3_twr;
+    } else if (strcmp(measurement_type, "simple") == 0) {
+        device_settings.measurement_type = simple_calibration;
+    } else if (strcmp(measurement_type, "extended") == 0) {
+        device_settings.measurement_type = extended_calibration;
+    } else if (strcmp(measurement_type, "two_device") == 0) {
+        device_settings.measurement_type = two_device_calibration;
+    }
+    else {
+        LOG_ERR("Wrong measurement type");
+    
     }
     
 }

@@ -27,8 +27,8 @@ typedef struct {
     uint8_t initiator;
     char responder_device[4][17];
     uint8_t responder;
-    uint8_t min_measurement;
-    uint8_t max_measurement;
+    uint32_t min_measurement;
+    uint32_t max_measurement;
     char measurement_type[11];
     char device_type[10];
     uint16_t rx_ant_dly;

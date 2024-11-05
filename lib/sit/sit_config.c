@@ -106,11 +106,11 @@ void set_responder(uint8_t responder) {
     device_settings.responder = responder;
 }
 
-void set_min_measurement(uint8_t measurement) {
+void set_min_measurement(uint32_t measurement) {
     device_settings.min_measurement = measurement;
 }
 
-void set_max_measurement(uint8_t measurement) {
+void set_max_measurement(uint32_t measurement) {
     device_settings.max_measurement = measurement;
 }
 
@@ -120,16 +120,11 @@ void set_measurement_type(char *measurement_type) {
         device_settings.measurement_type = ss_twr;
     } else if (strcmp(measurement_type, "ds_3_twr") == 0) {
         device_settings.measurement_type = ds_3_twr;
-    } else if (strcmp(measurement_type, "simple") == 0) {
-        device_settings.measurement_type = simple_calibration;
-    } else if (strcmp(measurement_type, "extended") == 0) {
-        device_settings.measurement_type = extended_calibration;
     } else if (strcmp(measurement_type, "two_device") == 0) {
         device_settings.measurement_type = two_device_calibration;
     }
     else {
         LOG_ERR("Wrong measurement type");
-    
     }
     
 }

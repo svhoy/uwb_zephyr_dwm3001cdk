@@ -87,8 +87,6 @@ bool sit_check_final_msg_id(msg_id_t id, msg_ss_twr_final_t* message);
 
 bool sit_check_ds_final_msg_id(msg_id_t id, msg_ds_twr_final_t* message);
 
-bool sit_check_simple_cali_final_msg_id(msg_id_t id, simple_calibration_t* message);
-
 bool sit_check_sensing_3_msg_id(msg_id_t id, msg_sensing_3_t * message);
 
 bool sit_check_sensing_info_msg_id(msg_id_t id, msg_sensing_info_t * message);

@@ -160,6 +160,7 @@ static ssize_t write_json_setup(
 	} else {
 		set_min_measurement(setup_str.min_measurement);
 		set_max_measurement(setup_str.max_measurement);
+		LOG_INF("Measurement Settings: %d", setup_str.max_measurement);
 		set_measurement_type(setup_str.measurement_type);
 		LOG_INF("RX Antenna Delay: %d", setup_str.rx_ant_dly);
 		LOG_INF("TX Antenna Delay: %d", setup_str.tx_ant_dly);
@@ -339,10 +340,6 @@ void bas_notify(void) {
 
 
 void ble_sit_notify(json_distance_msg_all_t *json_data, size_t data_len) {
-	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
-}
-
-void ble_sit_simple_notify(json_simple_cali_msg_t *json_data, size_t data_len) {
 	bt_gatt_notify(NULL, &sit_service.attrs[1], json_data, data_len);
 }
 

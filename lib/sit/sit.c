@@ -121,31 +121,10 @@ void send_twr_notify(uint8_t responder) {
 		};
 		ble_sit_notify(&distance_notify, sizeof(distance_notify));
 		measurements++;
+		LOG_INF("Test Measurement: %d von %d", measurements, device_settings.max_measurement);
 		if(device_settings.max_measurement != 0 && device_settings.max_measurement <= measurements) {
 			device_settings.state = sleep;
 		}
-	}
-}
-
-void send_simple_notify() {
-	json_simple_cali_msg_t distance_notify = {
-		.header = {
-			.type = "cali_msg",
-			.sequence = sequence,
-			.measurements = measurements,
-		},
-		.data = {
-			.time_tc_i = (float)(time_tc_i * DWT_TIME_UNITS),
-			.time_tc_ii = (float)(time_tc_ii * DWT_TIME_UNITS),
-			.time_tb_i = (float)(time_tb_i * DWT_TIME_UNITS),
-			.time_tb_ii = (float)(time_tb_ii * DWT_TIME_UNITS),
-			.dummy = 0,
-		}
-	};
-	ble_sit_simple_notify(&distance_notify, sizeof(distance_notify));
-	measurements++;
-	if(device_settings.max_measurement != 0 && device_settings.max_measurement <= measurements) {
-		device_settings.state = sleep;
 	}
 }
 
@@ -356,9 +335,6 @@ void sit_dstwr_responder() {
 				distance = tof * SPEED_OF_LIGHT;
 				LOG_INF("Distance: %lf", distance);
 				
-				uint32_t dgc_cfg = dwt_read32bitreg(DGC_CFG_ID);
-				uint32_t rx_tune_en = dgc_cfg & 0x0001;
-				LOG_INF("RX Tune Enable: %d", rx_tune_en);
 				send_twr_notify(device_settings.deviceID);
 			} else {
                 LOG_WRN("Something is wrong with Final Msg Receive");
@@ -372,106 +348,6 @@ void sit_dstwr_responder() {
 		sequence++;
 		k_msleep(90);
 	}
-}
-
-void sit_simple_calibration_a(){
-	while(device_settings.state == measurement) {
-		LOG_INF("Simple Calibration A: %d", sequence);
-		sit_set_rx_after_tx_delay(POLL_TX_TO_RESP_RX_DLY_UUS);
-		sit_set_rx_timeout(DS_RESP_RX_TIMEOUT_UUS+2000);
-		sit_set_preamble_detection_timeout(DS_PRE_TIMEOUT+200);
-		msg_simple_t simple_poll_msg = {{simple_poll, 0, device_settings.deviceID, 1}, 0};
-		sit_start_poll((uint8_t*) &simple_poll_msg, (uint16_t)sizeof(simple_poll_msg));
-		msg_simple_t resp_msg;
-		if (sit_check_msg_id(simple_resp, &resp_msg)) {
-			LOG_INF("Simple Resp A");
-			uint64_t poll_rx = get_rx_timestamp_u64();
-			uint32_t resp_tx_time = (poll_rx + ( 1500 * UUS_TO_DWT_TIME)) >> 8;
-			simple_poll_msg.header.id = extended_poll;
-			sit_send_at_with_response((uint8_t*) &simple_poll_msg, (uint16_t)sizeof(simple_poll_msg), resp_tx_time);
-			simple_calibration_t simple_final_msg;
-			if(sit_check_simple_cali_final_msg_id(simple_final, &simple_final_msg)){
-				LOG_INF("Simple Final A");
-			}
-		}
-		sequence++;
-		k_msleep(1000);
-	}
-}
-
-void sit_simple_calibration_b(){
-	while(device_settings.state == measurement) {
-		LOG_INF("Simple Calibration B: %d", sequence);
-		sit_receive_now(0,0);
-		msg_simple_t simple_poll_msg;
-		uint64_t poll_rx, resp_tx, final_rx = 0;
-		if(sit_check_msg_id(simple_poll, &simple_poll_msg)){
-			LOG_INF("Simple Poll B");
-			poll_rx = get_rx_timestamp_u64();
-			uint32_t resp_tx_time = (poll_rx + (1800 * UUS_TO_DWT_TIME)) >> 8;
-			resp_tx = (((uint64_t)resp_tx_time & 0xFFFFFFFEUL) << 8) + get_tx_ant_dly();
-			sit_set_rx_after_tx_delay(1000);
-			sit_set_rx_timeout(DS_RESP_RX_TIMEOUT_UUS+2000);
-			sit_set_preamble_detection_timeout(DS_PRE_TIMEOUT+200);
-			msg_simple_t simple_resp_msg = {{simple_resp, (uint8_t)sequence, device_settings.deviceID, 0}, 0};
-			sit_send_at_with_response((uint8_t*) &simple_resp_msg, (uint16_t)sizeof(simple_resp_msg), resp_tx_time);
-			msg_simple_t extended_poll_msg;
-			if(sit_check_msg_id(extended_poll, &extended_poll_msg)) {
-				LOG_INF("Simple Ext Poll B");
-				final_rx = get_rx_timestamp_u64();
-				uint32_t final_tx_time = (final_rx + ( 1500 * UUS_TO_DWT_TIME)) >> 8;
-				simple_calibration_t simple_final_msg = {
-					{simple_final, (uint8_t)sequence, device_settings.deviceID, 0}, 
-					(uint32_t)poll_rx,
-					(uint32_t)resp_tx,
-					(uint32_t)final_rx,
-					0,
-				};
-				sit_send_at((uint8_t*) &simple_final_msg, (uint16_t)sizeof(simple_final_msg), final_tx_time);
-			}
-		}
-		sequence++;
-		k_msleep(500);
-	}
-	LOG_INF("Simple Calibration Test");
-	k_msleep(500);
-}
-
-void sit_simple_calibration_c(){
-	while(device_settings.state == measurement) {
-		LOG_INF("Simple Calibration C: %d", sequence);
-		sit_receive_now(0,0);
-		msg_simple_t simple_poll_msg;
-		uint64_t poll_rx = 0, resp_rx = 0, final_rx = 0;
-		if(sit_check_msg_id(simple_poll, &simple_poll_msg)) {
-			LOG_INF("Simple Poll C");
-			poll_rx = get_rx_timestamp_u64();
-			sit_receive_now(DS_PRE_TIMEOUT+200, DS_RESP_RX_TIMEOUT_UUS+2000);
-			if (sit_check_msg_id(simple_resp, &simple_poll_msg)){
-				resp_rx = get_rx_timestamp_u64();
-				sit_receive_now(DS_PRE_TIMEOUT+200, DS_RESP_RX_TIMEOUT_UUS+2000);
-				if (sit_check_msg_id(extended_poll, &simple_poll_msg)){
-					final_rx = get_rx_timestamp_u64();
-					sit_receive_now(DS_PRE_TIMEOUT+200, DS_RESP_RX_TIMEOUT_UUS+2000);
-
-					simple_calibration_t resp_msg;
-					if(sit_check_simple_cali_final_msg_id(simple_final, &resp_msg)) {
-						LOG_INF("Simple Resp C");
-						resp_rx = get_rx_timestamp_u64();
-						
-						time_tc_i = (double) (resp_rx - poll_rx);
-						time_tb_i = (double) (resp_msg.resp_tx - resp_msg.poll_rx);
-						time_tc_ii = (double) (final_rx - resp_rx);
-						time_tb_ii = (double) (resp_msg.final_rx - resp_msg.resp_tx);
-						send_simple_notify();
-					}
-				}
-			}
-		}
-		sequence++;
-		k_msleep(500);
-	}
-	LOG_INF("Simple Calibration Test");
 }
 
 void sit_two_device_calibration_a() {
@@ -685,19 +561,13 @@ void sit_run_forever(){
 	while(42) { //Life, the universe, and everything
 		if(is_connected()){
 			if (device_settings.measurement_type == ss_twr && device_type == initiator) {
-					sit_sstwr_initiator();
+					sit_dstwr_initiator();
 			} else if (device_settings.measurement_type == ss_twr && device_type == responder) {
-					sit_sstwr_responder();
+					sit_dstwr_responder();
 			} else if (device_settings.measurement_type == ds_3_twr && device_type == initiator) {
 					sit_dstwr_initiator();
 			} else if (device_settings.measurement_type == ds_3_twr && device_type == responder) {
 					sit_dstwr_responder();
-			} else if (device_settings.measurement_type == simple_calibration && device_type == dev_a) {
-					sit_simple_calibration_a();
-			} else if (device_settings.measurement_type == simple_calibration && device_type == dev_b) {
-					sit_simple_calibration_b();
-			} else if (device_settings.measurement_type == simple_calibration && device_type == dev_c) {
-					sit_simple_calibration_c();
 			} else if  (device_settings.measurement_type == two_device_calibration && device_type == dev_a) {
 					sit_two_device_calibration_a();
 			} else if  (device_settings.measurement_type == two_device_calibration && device_type == dev_b) {

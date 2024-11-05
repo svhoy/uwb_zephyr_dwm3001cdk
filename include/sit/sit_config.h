@@ -85,8 +85,8 @@ typedef struct {
     device_state_t state;
     measurement_type_t measurement_type;
     bool diagnostic;
-    uint8_t min_measurement;
-    uint8_t max_measurement;
+    uint32_t min_measurement;
+    uint32_t max_measurement;
 } device_settings_t;
 
 extern device_settings_t device_settings;
@@ -138,14 +138,6 @@ typedef struct {
     uint32_t final_tx_ts;
     uint16_t crc;
 } msg_ds_twr_final_t;
-
-typedef struct {
-    header_t header;
-    uint32_t poll_rx;
-    uint32_t resp_tx;
-    uint32_t final_rx;
-    uint16_t crc;
-} simple_calibration_t;
 
 typedef struct {
     header_t header;
@@ -204,19 +196,6 @@ typedef struct {
 } json_simple_header_t;
 
 typedef struct {
-    float time_tc_i;
-    float time_tc_ii;
-    float time_tb_i;
-    float time_tb_ii;
-    uint8_t dummy;
-} json_simple_data_t;
-
-typedef struct {
-    json_simple_header_t header;
-    json_simple_data_t data;
-} json_simple_cali_msg_t;
-
-typedef struct {
     float time_m21;
     float time_m31;
     float time_a21;
@@ -273,8 +252,8 @@ void set_device_state(char *comand);
 void set_device_id(uint8_t device_id);
 void set_device_type(char *type);
 void set_responder(uint8_t responder);
-void set_min_measurement(uint8_t measurement);
-void set_max_measurement(uint8_t measurement);
+void set_min_measurement(uint32_t measurement);
+void set_max_measurement(uint32_t measurement);
 void set_measurement_type(char *measurement_type);
 void set_rx_ant_dly(uint16_t dly);
 void set_tx_ant_dly(uint16_t dly);

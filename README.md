@@ -1,7 +1,7 @@
 # UWB Indoor Sport Tracking Project 
 A Zephyr based Project for uwb module DWM3001cdk based on nRF52832 and DW3110 Transceiver. 
 
-I like to implement an localization system for sport useage (espcially Badminton). This work is for my Master Thieses at FH Dortmund. 
+I like to implement an localization system for sport useage (espcially Badminton). 
 
 This Project works with different distance measurment types, SS-TWR and ADS-TWR. Maybe more will be added in future. The main Project folder is Sports Indoor Tracking. Besides this I try to provide simple examples to work with differnt stages of the project. 
 
